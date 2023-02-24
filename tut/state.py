@@ -62,27 +62,41 @@ class State(tensor.Tensor):
         amplitude = self.ampl(*bits)
         return math.degrees(cmath.phase(amplitude))
 
-    def state_to_string(bits) -> str:
-        """Convert state to string like |010>."""
+    def dump(self, desc: Optional[str] = None, prob_only: bool = True) -> None:
+        dump_state(self, desc, prob_only)
 
-        s = "".join(str(i) for i in bits)
-        return "|{:s}> (|{:d}>)".format(s, int(s, 2))
 
-    def dump_state(psi, desc: Optional[str] = None, prob_only: bool = True) -> None:
-        """Dump probabilities for a state, as well as local qubit state."""
+def state_to_string(bits) -> str:
+    """Convert state to string like |010>."""
 
-        if desc:
-            print("/", end="")
-            for i in range(psi.nbits - 1, -1, -1):
-                print(i % 10, end="")
-            print(f"> '{desc}'")
+    s = "".join(str(i) for i in bits)
+    return "|{:s}> (|{:d}>)".format(s, int(s, 2))
 
-        state_list: List[str] = []
-        for bits in helper.bitprod(psi.nbits): 
-            if prob_only and (psi.prob(*bits) < 10e-6): 
-                continue
-            state_list.append(
 
+def dump_state(psi, desc: Optional[str] = None, prob_only: bool = True) -> None:
+    """Dump probabilities for a state, as well as local qubit state."""
+
+    if desc:
+        print("/", end="")
+        for i in range(psi.nbits - 1, -1, -1):
+            print(i % 10, end="")
+        print(f"> '{desc}'")
+
+    state_list: List[str] = []
+    for bits in helper.bitprod(psi.nbits):
+        if prob_only and (psi.prob(*bits) < 10e-6):
+            continue
+        state_list.append(
+            "{:s}: ampl: {:+.2f} prob: {:.2f} Phase: {:5.1f}".format(
+                state_to_string(bits),
+                psi.ampl(*bits),
+                psi.prob(*bits),
+                psi.phase(*bits),
+            )
+        )
+
+    state_list.sort()
+    print(*state_list, sep="\n")
 
 
 def qubit(
