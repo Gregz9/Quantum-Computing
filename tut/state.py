@@ -41,3 +41,16 @@ def qubit(alpha: Optional[np.complexfloating] = None,
     qb[1] = beta
     return State(qb)
 
+def ampl(self, *bits) -> np.complexfloating: 
+    """Return amplitude for state indexed by 'bits'.""" 
+
+    idx = helper.bits2val(bits)
+    return self[idx]
+
+def prob(self, *bits) -> float: 
+    """Return the probability for the state indexed by 'bits'.""" 
+
+    amplitude = self.ampl(*bits)
+    return np.real(amplitude.conj() * amplitude)
+
+
