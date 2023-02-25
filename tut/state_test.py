@@ -21,5 +21,6 @@ if __name__ == "__main__":
 
     assert np.allclose(np.inner(p1.conj(), p1) * np.inner(x1.conj(), x1), 1.0)
 
-    print(psi.ampl(1, 1))
-    print(psi.prob(1, 1))
+    # print(psi.ampl(1, 1))
+    # print(psi.prob(1, 1))
+    print(psi.dump())

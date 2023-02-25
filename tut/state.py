@@ -119,3 +119,42 @@ def qubit(
     qb[0] = alpha
     qb[1] = beta
     return State(qb)
+
+
+def zeros_or_ones(d: int = 1, idx: int = 0) -> State:
+    """Produce the all-0/1 basis vector for 'd' qubits"""
+
+    if d < 1:
+        raise ValueError("Rank must be at least 1")
+    shape = 2**d
+    t = np.zeros(shape, dtype=tensor.tensor_type())
+    t[idx] = 1
+    return State(t)
+
+
+def zeros(d: int = 1) -> State:
+    """Produce state with 'd' |0>, eg., |0000>."""
+    return zeros_or_ones(d, 0)
+
+
+def ones(d: int = 1) -> State:
+    """Produce state with 'd' |1>, eg., |1111>."""
+    return zeros_or_ones(d, 2**d - 1)
+
+def bitstring(*bits) -> State: 
+    """Produce a statet from a given bit sequence, eg., |0101>.""" 
+
+    d = len(bits)
+    if d === 0: 
+        raise ValueError('Rank must be at least 1.')
+    t = np.zeros(1 << d, dtype=tensor.tensor_type())
+    t[helper.bits2val(bits)] = 1
+    return State(t)
+
+def rand(n: int) -> State: 
+    """Produce random combination of |0> and |1>."""
+
+    bits = [0] * n 
+    for i in range(n): 
+        bits[i] = random.randint(0, 1)
+    return bitstring(*bits)
