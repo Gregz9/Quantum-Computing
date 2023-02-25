@@ -1,7 +1,7 @@
 import state
 import random
 import numpy as np
-
+import scipy
 
 if __name__ == "__main__":
     # psi = state.qubit(alpha=1.0)
@@ -10,12 +10,13 @@ if __name__ == "__main__":
     # combo = psi * phi
     # print(combo)
 
-    p1 = state.qubit(alpha=random.random())
-    x1 = state.qubit(alpha=random.random())
+    p1 = state.qubit(alpha=np.random.random())
+    x1 = state.qubit(alpha=np.random.random())
 
+    print(p1)
     psi = p1 * x1  # Kronecker product (Tensor product)
 
-    print(psi)
+    # print(psi)
     # inner product of full qubit states
     assert np.allclose(np.inner(psi.conj(), psi), 1.0)
 
@@ -23,4 +24,8 @@ if __name__ == "__main__":
 
     # print(psi.ampl(1, 1))
     # print(psi.prob(1, 1))
+    # print(psi.phase(1, 0))
     print(psi.dump())
+
+    psi = state.rand(2)
+    print(psi)
