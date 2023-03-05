@@ -4,6 +4,7 @@ import math
 import cmath
 import tensor
 import random
+import state
 
 
 class Operator(tensor.Tensor):
@@ -20,6 +21,25 @@ class Operator(tensor.Tensor):
         s += " Tensor:\n"
         s += super().__str__()
         return s
+
+    def __call__(
+        self, arg: Union[state.State, ops.Operator], idx: int = 0
+    ) -> state.State:
+        return self.apply(arg, idx)
+
+    def apply(self, arg: Union[state.State, ops.Operator], idx: int) -> state.State:
+        """Apply an operator to a state or another operator."""
+
+        if isinstance(arg, Operator):
+            if self.nbits != arg.nbits:
+                raise AssertionError("Operator with mis-matched dimensions.")
+
+            return arg @ self
+
+        if not isinstance(arg, state.State):
+            raise AssertionError("Invalid parameter, expected State.")
+
+        return state.State(np.matmul(self, arg))
 
     def adjoint(self) -> Operator:
         return Operator(np.conj(self.T))
