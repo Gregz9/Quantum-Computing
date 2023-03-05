@@ -30,7 +30,13 @@ class Operator(tensor.Tensor):
     def apply(self, arg: Union[state.State, ops.Operator], idx: int) -> state.State:
         """Apply an operator to a state or another operator."""
 
-        if isinstance(arg, Operator):
+        if isinstance(arg, Opertor):
+            arg_bits = arg.nbits
+            if idx > 0:
+                arg.Identity().kpow(idx) * arg
+            if self.nbits > arg.nbits:
+                arg = arg * Identity().kpow(self.nbits - idx - arb_bits)
+
             if self.nbits != arg.nbits:
                 raise AssertionError("Operator with mis-matched dimensions.")
 
@@ -38,6 +44,14 @@ class Operator(tensor.Tensor):
 
         if not isinstance(arg, state.State):
             raise AssertionError("Invalid parameter, expected State.")
+
+        op = self
+        if idx > 0:
+            op = Identity().kpow(idx) * op
+        if arg.nbits - idx - self.nbits > 0:
+            op = op * Identity().kpow(arg.nbits - idx - self.nbits)
+
+        return state.State(np.matmul(op, arg))
 
         return state.State(np.matmul(self, arg))
 
@@ -59,3 +73,48 @@ class Operator(tensor.Tensor):
             res = res.replace("-0.0", " -  ")
             res = res.replace("+", " ")
         print(res)
+
+
+def Idetity(d: int = 1) -> Operator:
+    return Operator(np.array([[1.0, 0.0], [0.0, 1.0]])).kpow(d)
+
+
+def PauliX(d: int = 1) -> Operator:
+    return Operator(np.array([[0.0j, 1.0], [1.0, 0.0j]])).kpow(d)
+
+
+def PauliY(d: int = 1) -> Operator:
+    return Operator(np.array([[0.0, -1.0j], [1.0j, 0.0]])).kpow(d)
+
+
+def PauliZ(d: int = 1) -> Operator:
+    return Operator(np.array([[1.0, 0.0], [0.0, -1.0]])).kpow(d)
+
+
+_PAULI_X = PauliX()
+_PAULI_Y = PauliY()
+_PAULI_Z = PauliZ()
+
+
+def Rotation(v: np.ndarray, theta: float) -> np.ndarray:
+    """Produce the single-qubit rotation operator."""
+
+    v = np.asarray(v)
+    if v.shape != (3,) or not math.isclose(v @ v, 1) or not np.all(np.isreal(v)):
+        raise ValueError("Rotation vector must be 3D real unit vector")
+
+    return np.cos(theta / 2) * Identity() - 1j * np.sin(theta / 2) * (
+        v[0] * _PAULI_X + v[1] * _PAULI_Y + v[2] * _PAULI_Z
+    )
+
+
+def RotationX(theta: float) -> Operator:
+    return Rotation([1.0, 0.0, 0.0], theta)
+
+
+def RotationY(theta: float) -> Operator:
+    return Rotation([0.0, 1.0, 0.0], theta)
+
+
+def RotationZ(theta: float) -> Operator:
+    return Rotation([0.0, 0.0, 1.0], theta)
