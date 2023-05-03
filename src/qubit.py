@@ -4,6 +4,7 @@ import math
 import cmath
 import random
 from typing import List, Iterable, Tuple
+import itertools
 
 
 def nbits(psi) -> int:
