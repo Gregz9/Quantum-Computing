@@ -37,12 +37,33 @@ def state_to_string(bits) -> str:
     return "|{:s}> (|{:d}>)".format(s, int(s, 2))
 
 
-def ampl(psi, *bits) -> np.complexfloating:
-    idx = bits2val(bits)
-    return psi[idx]
+# def ampl(psi, *bits) -> np.complexfloating:
+#     idx = bits2val(bits)
+#     return psi[idx]
+#
 
 
-def qubit(alpha: complex = None, beta: complex = None):
+def dump(psi) -> None:
+    def ampl(psi, *bits) -> np.complexfloating:
+        idx = bits2val(bits)
+        return psi[idx]
+
+    def prob(psi, *bits) -> float:
+        amplitude = ampl(psi, *bits)
+        return np.real(amplitude.conj() * amplitude)
+
+    def phase(psi, *bits) -> float:
+        amplitude = ampl(psi, *bits)
+        return math.degrees(cmath.phase(amplitude))
+
+    for bits in bitprod(nbits(psi)):
+        print(state_to_string(bits))
+        print(f"{str(ampl(psi, *bits)).strip('(').strip(')')}")
+        print(f"{str(prob(psi, *bits)).strip('(').strip(')')}")
+        print(f"{str(phase(psi, *bits)).strip('(').strip(')')}")
+
+
+def qubit(alpha: complex = None, beta: complex = None) -> np.ndarray:
     """Creates a one-qubit basis"""
 
     if alpha is None and beta is None:
@@ -60,21 +81,8 @@ def qubit(alpha: complex = None, beta: complex = None):
     ):
         raise ValueError("The sum of qubit state probabilities does not sum to 1")
 
-    qb = np.zeros(2, dtype=np.ndarray)
+    qb = np.zeros(2, dtype=np.complex128)
     qb[0] = alpha
     qb[1] = beta
 
     return qb
-
-
-# def dump_qubit(psi, dec: str = None):
-#     if desc:
-#         print("|", end="")
-#         for i in rnage(psi.nbits - 1, -1, -1):
-#             print(i % 10, end="")
-#         print(f"> '{desc}'")
-#
-#         state_list: List[str] = []
-#         for bits in bitprod(int(np.log2(psi.shape[0]))):
-#             state_list.append("{:s} ampl: {:+.2f} prob: {:.2f} phase: {:5.1f}".format(
-#
