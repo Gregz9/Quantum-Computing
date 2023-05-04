@@ -74,6 +74,23 @@ def density(psi) -> np.ndarray:
     return np.outer(psi, psi.conj())
 
 
+def zeros_or_ones(d: int = 1, idx: int = 0) -> np.ndarray:
+    if d < 1:
+        raise ValueError("Rank must be at least 1")
+    shape = 2**d
+    t = np.zeros(shape, dtype=np.complex64)
+    t[idx] = 1
+    return t
+
+
+def zeros(d: int = 1) -> np.ndarray:
+    return zeros_or_ones(d, 0)
+
+
+def ones(d: int = 1) -> np.ndarray:
+    return zeros_or_ones(d, 2**d - 1)
+
+
 def dump(psi) -> None:
     def ampl(psi, *bits) -> np.complexfloating:
         idx = bits2val(bits)

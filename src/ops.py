@@ -97,10 +97,3 @@ def ControlledU(idx0: int, idx1: int, oper: np.ndarray) -> np.ndarray:
     p1 = Projector(np.ones(1, dtype=np.complex64))
     ifill = Identity(abs(idx1 - idx0) - 1)
     ufill = kpow(Identity(), nbits(oper))
-
-    # print(p0)
-    print(p1)
-
-    # if idx1 > idx0:
-    #     if idx1 - idx0 > 1:
-    #         op = p0
