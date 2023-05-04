@@ -51,3 +51,33 @@ def RotationX(theta: float) -> np.ndarray:
 
 def Phase(d: int = 1) -> np.ndarray:
     return kpow(np.array([[1.0, 0.0], [0.0, 1.0j]]), d)
+
+
+def Sgate(d: int = 1) -> np.ndarray:
+    return Phase(d)
+
+
+def Rk(k: int, d: int = 1) -> np.ndarray:
+    return kpow(
+        np.array([(1.0, 0.0), (0.0, cmath.exp(2.0 * cmath.pi * 1j / 2**k))]), d
+    )
+
+
+def U1(lam: float, d: int = 1) -> np.ndarray:
+    return kpow(np.array([(1.0, 0.0), (0.0, cmath.exp(1j * lam))]), d)
+
+
+def Vgate(d: int = 1) -> np.ndarray:
+    return kpow((0.5 * np.array([(1 + 1j, 1 - 1j), (1 - 1j, 1 + 1j)])), d)
+
+
+def Tgate(d: int = 1) -> np.ndarray:
+    return kpow(np.array([[1.0, 0.0], [0.0, cmath.exp(cmath.pi * 1j / 4)]]), d)
+
+
+def Yroot(d: int = 1) -> np.ndarray:
+    return kpow(0.5 * np.array([(1 + 1j, -1 - 1j), (1 + 1j, 1 + 1j)]), d)
+
+
+def Hadamard(d: int = 1) -> np.ndarray:
+    return kpow((1 / np.sqrt(2) * np.array([[1.0, 1.0], [1.0, -1.0]])), d)
