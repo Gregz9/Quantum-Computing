@@ -126,5 +126,4 @@ def bell_state(a: int, b: int) -> np.ndarray:
         raise ValueError("Values for a and b are required to be either 0 or 1")
 
     psi = bitstring(a, b)
-    psi = Hadamard() @ psi
-    
+    psi = Hadamard() @ psi
