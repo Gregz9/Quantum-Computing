@@ -89,9 +89,9 @@ def dump(psi) -> None:
 
     for bits in bitprod(nbits(psi)):
         print(state_to_string(bits))
-        print(f"{str(ampl(psi, *bits)).strip('(').strip(')')}")
-        print(f"{str(prob(psi, *bits)).strip('(').strip(')')}")
-        print(f"{str(phase(psi, *bits)).strip('(').strip(')')}")
+        print(f"Amplitude: {str(ampl(psi, *bits)).strip('(').strip(')')}")
+        print(f"Probability: {str(prob(psi, *bits)).strip('(').strip(')')}")
+        print(f"Phase: {str(phase(psi, *bits)).strip('(').strip(')')}")
 
 
 def qubit(alpha: complex = None, beta: complex = None) -> np.ndarray:
