@@ -3,8 +3,17 @@ import numpy as np
 import math
 import cmath
 import random
-from typing import List, Iterable, Tuple
+from typing import List, Iterable, Tuple, Union
 import itertools
+
+
+def kpow(mat, n: int) -> np.ndarray:
+    if n == 0:
+        return 1.0
+    t = mat
+    for _ in range(n - 1):
+        t = np.kron(t, mat)
+    return t
 
 
 def nbits(psi) -> int:
@@ -37,10 +46,32 @@ def state_to_string(bits) -> str:
     return "|{:s}> (|{:d}>)".format(s, int(s, 2))
 
 
-# def ampl(psi, *bits) -> np.complexfloating:
-#     idx = bits2val(bits)
-#     return psi[idx]
-#
+def prob(psi) -> Iterable[float]:
+    return [np.real(ampl.conj() * ampl) for ampl in psi]
+
+
+def phase(psi) -> Iterable[float]:
+    return [math.degrees(cmath.phase(ampl)) for ampl in psi]
+
+
+def bitstring(*bits) -> np.ndarray:
+    d = len(bits)
+    if d == 0:
+        raise ValueError("Rank must be at least 1.")
+    t = np.zeros(1 << d, dtype=np.complex128)
+    t[bits2val(bits)] = 1
+    return t
+
+
+def rand(n: int) -> np.ndarray:
+    bits = [0] * n
+    for i in range(n):
+        bits[i] = random.randint(0, 1)
+    return bitstring(*bits)
+
+
+def density(psi) -> np.ndarray:
+    return np.outer(psi, psi.conj())
 
 
 def dump(psi) -> None:
