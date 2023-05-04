@@ -93,7 +93,49 @@ def ControlledU(idx0: int, idx1: int, oper: np.ndarray) -> np.ndarray:
     if idx0 == idx1:
         raise ValueError("Control and controlled qubit must not be equal.")
 
-    p0 = Projector(np.zeros(1, dtype=np.complex64))
-    p1 = Projector(np.ones(1, dtype=np.complex64))
+    p0 = Projector(zeros())
+    p1 = Projector(ones())
     ifill = Identity(abs(idx1 - idx0) - 1)
     ufill = kpow(Identity(), nbits(oper))
+
+    if idx1 > idx0:
+        if idx1 - idx0 > 1:
+            op = np.kron(np.kron(p0, ifill), ufill) + np.kron(np.kron(p1, ifill), oper)
+        else:
+            op = np.kron(p0, ufill) + np.kron(p1, oper)
+    else:
+        if idx0 - idx1 > 1:
+            op = np.kron(np.kron(ufill, ifill), p0) + np.kron(np.kron(oper, ifill), p1)
+        else:
+            op = np.kron(ufill, p0) + np.kron(oper, p1)
+    return op
+
+
+def Cnot(idx0: int = 0, idx1: int = 1) -> np.ndarray:
+    return ControlledU(idx0, idx1, PauliX())
+
+
+def Measure(
+    psi: np.ndarray, idx: int, tostate: int = 0, collapse: bool = True
+) -> (float, np.ndarray):
+    rho = density(psi)
+    op = Projector(zeros(1)) if tostate == 0 else Projector(ones(1))
+
+    if idx > 0:
+        op = np.kron(kpow(Identity(), idx), op)
+    if idx < nbits(psi) - 1:
+        op = np.kron(op, kpow(Identity(), nbits(psi) - idx - 1))
+
+    prob0 = np.trace(np.matmul(op, rho))
+
+    if collapse:
+        mvmul = np.dot(op, psi)
+        divisor = np.real(np.linalg.norm(mvmul))
+        if divisor > 1e-10:
+            normed = mvmul / divisor
+        else:
+            raise AssertionError("Measure() collapses to 0.0 probability state.")
+
+        return np.real(prob0), normed
+
+    return np.real(prob0), psi
