@@ -143,10 +143,6 @@ def bell_state(a: int, b: int) -> np.ndarray:
         raise ValueError("Values for a and b are required to be either 0 or 1")
 
     psi = bitstring(a, b)
-    print(psi)
     ext_HAD = np.kron(Hadamard(), Identity())
-    print(ext_HAD)
     psi = ext_HAD @ psi
-    print(psi)
-    psi = Cnot() @ psi
-    print(psi)
+    return Cnot() @ psi
