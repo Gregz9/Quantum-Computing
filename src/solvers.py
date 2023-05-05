@@ -3,16 +3,34 @@ import numpy as np
 import math
 import cmath
 from typing import Iterable, List, Tuple
+from src.ops import *
+
+_PAULI_X = PauliX()
+_PAULI_Y = PauliY()
+_PAULI_Z = PauliZ()
 
 
-def hamilitonian(dim=2, e0=0, e1=1.0, Xdiag=1.0, Xnondiag=0.0):
+def hamilitonian(dim=2, e0=0, e1=1.0, Xdiag=1.0, Xnondiag=0.0, lam=1.0):
     Hamilitonian = np.zeros((dim, dim))
-    Hamilitonian[0, 0] = e0 + Xdiag
-    Hamilitonian[0, 1] = Xnondiag
-    Hamilitonian[1, 0] = Xnondiag
-    Hamilitonian[1, 1] = e1 - Xdiag
+    Hamilitonian[0, 0] = e0 + (lam * Xdiag)
+    Hamilitonian[0, 1] = lam * Xnondiag
+    Hamilitonian[1, 0] = lam * Xnondiag
+    Hamilitonian[1, 1] = e1 - (lam * Xdiag)
 
     return Hamilitonian
+
+
+def Pauli_hamiltionian(dim=2, e0=0.0, e1=0.0, Xdiag=1.0, Xnondiag=0.0, lam=1.0):
+    eps = (e0 + e1) / 2
+    omega = (e0 - e1) / 2
+    c = (Xdiag - Xdiag) / 2
+    omega_z = (Xdiag - (-Xdiag)) / 2
+    omega_x = Xnondiag
+
+    H0 = eps * Identity() + omega * _PAULI_Z
+    H1 = c * Identity() + omega_z * _PAULI_Z + omega_x * _PAULI_X
+    H = H0 + lam * H1
+    return H
 
 
 def analytical_solver(mat):
@@ -40,7 +58,7 @@ def power_iter(mat, iters=100):
     print("Eigenvector:", x)
 
 
-def power_iteration(a, num_iterations):
+def power_iteration(a, num_iterations) -> (np.ndarray, np.ndarray):
     n = len(a)
     eigenvalues = []
     eigenvectors = []
@@ -56,15 +74,23 @@ def power_iteration(a, num_iterations):
         eigenvalues.append(eigenvalue)
         a = a - eigenvalue * np.outer(x, x)
 
-    print("Eigenvalues:", eigenvalues)
-    print("Eigenvectors:", eigenvectors)
+    print("Eigenvalues:", eigenvalues[1])
+    print("Eigenvectors:", eigenvectors[1])
     return eigenvalues, eigenvectors
+
+
+def new_basis(theta=np.pi, phi=np.pi) -> np.ndarray:
+    Rx = np.cos(theta / 2) * Identity() - 1j * np.sin(theta / 2) * _PAULI_X
+    Ry = np.cos(phi / 2) * Identity() - 1j * np.sin(phi / 2) * _PAULI_Y
+    return Ry @ Rx
 
 
 if __name__ == "__main__":
     hamil = hamilitonian(dim=2, e0=0.0, e1=4.0, Xdiag=3, Xnondiag=0.2)
+    hamil2 = Pauli_hamiltionian(dim=2, e0=0.0, e1=4.0, Xdiag=3.0, Xnondiag=0.2, lam=0.5)
     eig_vals, eig_vecs = analytical_solver(hamil)
-    print(eig_vals)
-    print(eig_vecs)
-    power_iter(hamil)
-    power_iteration(hamil, 100)
+    eig_vals2, eig_vecs2 = analytical_solver(hamil2)
+    print("Eigenvalues:", eig_vals)
+    print("Eigenvectors", eig_vecs)
+    print("Eigenvalues:", eig_vals2)
+    print("Eigenvectors", eig_vecs2)
