@@ -2,7 +2,7 @@ from __future__ import annotations
 import numpy as np
 import math
 import cmath
-import tensor
+from tut import tensor
 import random
 
 from lib import helper

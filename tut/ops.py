@@ -30,7 +30,7 @@ class Operator(tensor.Tensor):
     def apply(self, arg: Union[state.State, ops.Operator], idx: int) -> state.State:
         """Apply an operator to a state or another operator."""
 
-        if isinstance(arg, Opertor):
+        if isinstance(arg, Operator):
             arg_bits = arg.nbits
             if idx > 0:
                 arg.Identity().kpow(idx) * arg
@@ -75,7 +75,7 @@ class Operator(tensor.Tensor):
         print(res)
 
 
-def Idetity(d: int = 1) -> Operator:
+def Identity(d: int = 1) -> Operator:
     return Operator(np.array([[1.0, 0.0], [0.0, 1.0]])).kpow(d)
 
 
@@ -96,6 +96,7 @@ _PAULI_Y = PauliY()
 _PAULI_Z = PauliZ()
 
 
+# TODO: FIx the code, so it takes the exact theta to be used
 def Rotation(v: np.ndarray, theta: float) -> np.ndarray:
     """Produce the single-qubit rotation operator."""
 
@@ -118,3 +119,40 @@ def RotationY(theta: float) -> Operator:
 
 def RotationZ(theta: float) -> Operator:
     return Rotation([0.0, 0.0, 1.0], theta)
+
+
+def Phase(d: int = 1) -> Operator:
+    return Operator(np.array([[1.0, 0.0], [0.0, 1.0j]])).kpow(d)
+
+
+def Sgate(d: int = 1) -> Operator:
+    return Phase(d)
+
+
+def Rk(k: int, d: int = 1) -> Operator:
+    return Operator(
+        np.array([(1.0, 0.0), (0.0, cmath.exp(2.0 * cmath.pi * 1j / 2**k))])
+    ).kpow(d)
+
+
+def U1(lam: float, d: int = 1) -> Operator:
+    return Operator(np.array([(1.0, 0.0), (0.0, cmath.exp(1j * lam))])).kpow(d)
+
+
+def Vgate(d: int = 1) -> Operator:
+    return Operator(0.5 * np.array([(1 + 1j, 1 - 1j), (1 - 1j, 1 + 1j)])).kpow(d)
+
+
+def Tgate(d: int = 1) -> Operator:
+    """T-gate is sqrt(S-gate)"""
+
+    return Operator(np.array([[1.0, 0.0], [0.0, cmath.exp(cmath.pi * 1j / 4)]])).kpow(d)
+
+
+def Yroot(d: int = 1) -> Operator:
+    """Root of Y-gate"""
+    return Operator(0.5 * np.array([(1 + 1j, -1 - 1j), (1 + 1j, 1 + 1j)])).kpow(d)
+
+
+def Hadamard(d: int = 1) -> Operator:
+    return Operator(1 / np.sqrt(2) * np.array([[1.0, 1.0], [1.0, -1.0]])).kpow(d)
