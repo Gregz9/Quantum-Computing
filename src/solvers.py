@@ -79,10 +79,27 @@ def power_iteration(a, num_iterations) -> (np.ndarray, np.ndarray):
     return eigenvalues, eigenvectors
 
 
-def new_basis(theta=np.pi, phi=np.pi) -> np.ndarray:
+def new_basis_1q(theta=np.pi, phi=np.pi) -> np.ndarray:
     Rx = np.cos(theta / 2) * Identity() - 1j * np.sin(theta / 2) * _PAULI_X
     Ry = np.cos(phi / 2) * Identity() - 1j * np.sin(phi / 2) * _PAULI_Y
-    return Ry @ Rx
+    basis0 = np.array([1, 0])
+    return Ry @ Rx @ basis0
+
+
+def VQE_naive(H, inter):
+    angles = (0, 180, inter)
+    n = np.size(angles)
+    ExpectationValues = np.zeros((n, n))
+    EigValues, _ = analytical_solver(H)
+    for i in range(n):
+        theta = np.pi * angles[i] / 180.0
+        for j in range(n):
+            phi = np.pi * angles[i] / 180.0
+            new_basis = new_basis_1q(theta, phi)
+            Energy = new_basis.conj().T @ H @ new_basis
+            Ediff = abs(np.real(EigValues[0] - Energy))
+            ExpectationValues[i, j] = Ediff
+    print(np.min(ExpectationValues))
 
 
 if __name__ == "__main__":
@@ -90,7 +107,5 @@ if __name__ == "__main__":
     hamil2 = Pauli_hamiltionian(dim=2, e0=0.0, e1=4.0, Xdiag=3.0, Xnondiag=0.2, lam=0.5)
     eig_vals, eig_vecs = analytical_solver(hamil)
     eig_vals2, eig_vecs2 = analytical_solver(hamil2)
-    print("Eigenvalues:", eig_vals)
-    print("Eigenvectors", eig_vecs)
-    print("Eigenvalues:", eig_vals2)
-    print("Eigenvectors", eig_vecs2)
+
+    VQE_naive(hamil, 10)
