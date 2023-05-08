@@ -8,6 +8,8 @@ from src.ops import *
 _PAULI_X = PauliX()
 _PAULI_Y = PauliY()
 _PAULI_Z = PauliZ()
+_HADAMARD = Hadamard()
+_SGATE = Sgate()
 
 
 def hamilitonian(dim=2, e0=0, e1=1.0, Xdiag=1.0, Xnondiag=0.0, lam=1.0):
@@ -79,33 +81,102 @@ def power_iteration(a, num_iterations) -> (np.ndarray, np.ndarray):
     return eigenvalues, eigenvectors
 
 
-def new_basis_1q(theta=np.pi, phi=np.pi) -> np.ndarray:
-    Rx = np.cos(theta / 2) * Identity() - 1j * np.sin(theta / 2) * _PAULI_X
-    Ry = np.cos(phi / 2) * Identity() - 1j * np.sin(phi / 2) * _PAULI_Y
-    basis0 = np.array([1, 0])
-    return Ry @ Rx @ basis0
+def new_basis_1q(theta, phi) -> np.ndarray:
+    Rx = np.cos(theta * 0.5) * Identity() - 1j * np.sin(theta * 0.5) * _PAULI_X
+    Ry = np.cos(phi * 0.5) * Identity() - 1j * np.sin(phi * 0.5) * _PAULI_Y
+    basis0 = np.array([0, 1])
+    return Ry @ Rx @ basis0, Rx, Ry, basis0
+
+
+def new_basis_2q(theta, phi, idx=0) -> np.ndarray:
+    Rx1 = np.cos(theta * 0.5) * Identity() - 1j * np.sin(theta * 0.5) * _PAULI_X
+    Rx2 = np.cos(phi * 0.5) * Identity() - 1j * np.sin(phi * 0.5) * _PAULI_X
+    Ry1 = np.cos(theta * 0.5) * Identity() - 1j * np.sin(theta * 0.5) * _PAULI_Y
+    Ry2 = np.cos(phi * 0.5) * Identity() - 1j * np.sin(phi * 0.5) * _PAULI_Y
+
+    Rz1 = np.cos(theta * 0.5) * Identity() - 1j * np.sin(theta * 0.5) * _PAULI_Z
+    Rz2 = np.cos(phi * 0.5) * Identity() - 1j * np.sin(phi * 0.5) * _PAULI_Z
+    CX_01 = Cnot(0, 1)
+    basis = np.zeros(4)
+    basis[idx] = 1
+    return (
+        # np.kron(Ry1, Ry2) @ np.kron(Rz1, Rz2) @ Cnot(0, 1) @ basis,
+        np.kron(Rz1, Rz2) @ Cnot(0, 1) @ np.kron(Rx1, Rx2) @ basis,
+        Ry1,
+        Ry2,
+        basis,
+    )
 
 
 def VQE_naive(H, inter):
-    angles = (0, 180, inter)
+    angles = np.arange(0, 180, inter)
     n = np.size(angles)
     ExpectationValues = np.zeros((n, n))
+    Energies = np.zeros((n, n))
     EigValues, _ = analytical_solver(H)
     for i in range(n):
         theta = np.pi * angles[i] / 180.0
         for j in range(n):
-            phi = np.pi * angles[i] / 180.0
-            new_basis = new_basis_1q(theta, phi)
+            phi = np.pi * angles[j] / 180.0
+            new_basis, _, _, _ = new_basis_1q(theta, phi)
             Energy = new_basis.conj().T @ H @ new_basis
             Ediff = abs(np.real(EigValues[0] - Energy))
             ExpectationValues[i, j] = Ediff
-    print(np.min(ExpectationValues))
+            Energies[i, j] = Energy
+
+    # print(np.min(ExpectationValues))
+    ind = np.argmin(ExpectationValues)
+    # print(ExpectationValues.flatten()[5])
+    print(Energies.flatten()[ind])
+
+
+def VQE_naive_2q(H, inter):
+    angles = np.arange(0, 180, inter)
+    n = np.size(angles)
+    ExpectationValues = np.zeros((n, n))
+    Energies = np.zeros((n, n))
+    EigValues, _ = analytical_solver(H)
+    for i in range(n):
+        theta = np.pi * angles[i] / 180.0
+        for j in range(n):
+            phi = np.pi * angles[j] / 180.0
+            new_basis, Rx, Ry, basis = new_basis_2q(theta, phi)
+            Energy = new_basis.conj().T @ H @ new_basis
+            Ediff = abs(np.real(EigValues[0] - Energy))
+            ExpectationValues[i, j] = Ediff
+            Energies[i, j] = Energy
+
+    print(np.min(np.real(ExpectationValues)))
+    ind = np.argmin(ExpectationValues)
+    # print(ExpectationValues.flatten()[5])
+    print(Energies.flatten()[ind])
 
 
 if __name__ == "__main__":
-    hamil = hamilitonian(dim=2, e0=0.0, e1=4.0, Xdiag=3, Xnondiag=0.2)
-    hamil2 = Pauli_hamiltionian(dim=2, e0=0.0, e1=4.0, Xdiag=3.0, Xnondiag=0.2, lam=0.5)
-    eig_vals, eig_vecs = analytical_solver(hamil)
-    eig_vals2, eig_vecs2 = analytical_solver(hamil2)
+    # hamil = hamilitonian(dim=2, e0=0.0, e1=4.0, Xdiag=3, Xnondiag=0.2)
+    # hamil2 = Pauli_hamiltionian(dim=2, e0=0.0, e1=4.0, Xdiag=3.0, Xnondiag=0.2, lam=0.5)
+    # eig_vals, eig_vecs = analytical_solver(hamil)
+    # print(eig_vals)
+    # eig_vals2, eig_vecs2 = analytical_solver(hamil2)
+    # VQE_naive(hamil, 10)
 
-    VQE_naive(hamil, 10)
+    # mat = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, -1, 0], [0, 0, 0, -1]])
+    # eig_vals, eig_vecs = analytical_solver(mat)
+    # print(eig_vals)
+
+    new_basis, Rx, Ry, basis = new_basis_1q(np.pi / 2, np.pi / 2)
+
+    e00, e10, e01, e11 = 0.0, 2.5, 6.5, 7.0
+    Hx, Hz = 2.0, 3.0
+    mat = np.zeros((4, 4))
+    mat[0, 0], mat[1, 1], mat[2, 2], mat[3, 3] = e00 + Hz, e10 - Hz, e01 - Hz, e11 + Hz
+    mat[0, 3], mat[1, 2], mat[2, 1], mat[3, 0] = Hx, Hx, Hx, Hx
+
+    eig_vals, eig_vecs = analytical_solver(mat)
+
+    # new_basis, Rx, Ry, basis0 = new_basis_1q(np.pi / 2, np.pi / 2)
+    # print(Rx)
+    # print(Ry)
+    # print(Ry @ Rx)
+    # print(np.kron(Ry @ Rx, Identity()))
+    # print(np.kron(Identity(), Ry @ Rx))
