@@ -115,14 +115,18 @@ def Cnot(idx0: int = 0, idx1: int = 1) -> np.ndarray:
     return ControlledU(idx0, idx1, PauliX())
 
 
-def single_measurement(psi) -> np.ndarray:
-    rho = density(psi)
-    op = Projector(zeros(1))
-    op = np.kron(op, kpow(Identity(), nbits(psi) - 1))
-    prob0 = np.trace(np.matmul(op, rho))
-    probs = np.array([prob0.real, 1 - prob0.real])
+def measurement(
+    psi, operator: np.ndarray, shots: int = 1
+) -> (np.ndarray, np.ndarray, np.float64):
+    psi = operator @ psi
+    probs = np.diag(density(psi)).real
+    possible_states = np.arange(len(psi))
+    measurement = np.random.choice(possible_states, p=probs, size=shots)
 
-    return probs
+    collapsed_psi = np.zeros(len(psi))
+    collapsed_psi[measurement[-1]] = 1
+    counts = np.unique(measurement, return_counts=True)[1]
+    return probs, counts, counts / shots, psi
 
 
 def measure(psi: np.ndarray, shots) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray):
