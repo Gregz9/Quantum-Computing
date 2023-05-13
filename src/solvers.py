@@ -100,7 +100,6 @@ def new_basis_2q(theta, phi, idx=0) -> np.ndarray:
     basis = np.zeros(4)
     basis[idx] = 1
     return (
-        # np.kron(Ry1, Ry2) @ np.kron(Rz1, Rz2) @ Cnot(0, 1) @ basis,
         np.kron(Rz1, Rz2) @ Cnot(0, 1) @ np.kron(Rx1, Rx2) @ basis,
         Ry1,
         Ry2,
@@ -124,9 +123,8 @@ def VQE_naive(H, inter):
             ExpectationValues[i, j] = Ediff
             Energies[i, j] = Energy
 
-    # print(np.min(ExpectationValues))
+    print(np.min(ExpectationValues))
     ind = np.argmin(ExpectationValues)
-    # print(ExpectationValues.flatten()[5])
     print(Energies.flatten()[ind])
 
 
@@ -148,35 +146,31 @@ def VQE_naive_2q(H, inter):
 
     print(np.min(np.real(ExpectationValues)))
     ind = np.argmin(ExpectationValues)
-    # print(ExpectationValues.flatten()[5])
     print(Energies.flatten()[ind])
 
 
-if __name__ == "__main__":
-    # hamil = hamilitonian(dim=2, e0=0.0, e1=4.0, Xdiag=3, Xnondiag=0.2)
-    # hamil2 = Pauli_hamiltionian(dim=2, e0=0.0, e1=4.0, Xdiag=3.0, Xnondiag=0.2, lam=0.5)
-    # eig_vals, eig_vecs = analytical_solver(hamil)
-    # print(eig_vals)
-    # eig_vals2, eig_vecs2 = analytical_solver(hamil2)
-    # VQE_naive(hamil, 10)
+def get_energy(H, theta, phi, collapse_to=0):
+    basis = np.zeros(2)
+    basis[collapse_to] = 1
+    basis = RotationY(phi) @ RotationX(theta) @ basis
+    return basis.conj().T @ H @ basis
 
-    # mat = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, -1, 0], [0, 0, 0, -1]])
-    # eig_vals, eig_vecs = analytical_solver(mat)
-    # print(eig_vals)
+    return proj_oper.conj().T @ H @ proj_oper
 
-    new_basis, Rx, Ry, basis = new_basis_1q(np.pi / 2, np.pi / 2)
 
-    e00, e10, e01, e11 = 0.0, 2.5, 6.5, 7.0
-    Hx, Hz = 2.0, 3.0
-    mat = np.zeros((4, 4))
-    mat[0, 0], mat[1, 1], mat[2, 2], mat[3, 3] = e00 + Hz, e10 - Hz, e01 - Hz, e11 + Hz
-    mat[0, 3], mat[1, 2], mat[2, 1], mat[3, 0] = Hx, Hx, Hx, Hx
+def VQE_1q(H, epochs=100, eta=0.1):
+    theta = 2 * np.pi * np.random.rand()
+    phi = 2 * np.pi * np.random.rand()
+    pi2 = 0.5 * np.pi
+    for epoch in range(epochs):
+        theta_grad = 0.5 * (
+            get_energy(H, theta + pi2, phi) - get_energy(H, theta - pi2, phi)
+        )
+        phi_grad = 0.5 * (
+            get_energy(H, theta, phi + pi2) - get_energy(H, theta - pi2, phi)
+        )
+        theta -= eta * theta_grad
+        phi -= eta * phi_grad
+    print(abs(get_energy(H, theta, phi)))
 
-    eig_vals, eig_vecs = analytical_solver(mat)
 
-    # new_basis, Rx, Ry, basis0 = new_basis_1q(np.pi / 2, np.pi / 2)
-    # print(Rx)
-    # print(Ry)
-    # print(Ry @ Rx)
-    # print(np.kron(Ry @ Rx, Identity()))
-    # print(np.kron(Identity(), Ry @ Rx))

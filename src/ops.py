@@ -45,7 +45,7 @@ def RotationY(theta: float) -> np.ndarray:
     return Rotation([0.0, 1.0, 0.0], theta)
 
 
-def RotationX(theta: float) -> np.ndarray:
+def RotationZ(theta: float) -> np.ndarray:
     return Rotation([0.0, 0.0, 1.0], theta)
 
 
