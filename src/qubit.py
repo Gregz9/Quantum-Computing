@@ -111,7 +111,7 @@ def dump(psi) -> None:
         print(f"Phase: {str(phase(psi, *bits)).strip('(').strip(')')}")
 
 
-def qubit(alpha: complex = None, beta: complex = None) -> np.ndarray:
+def state(alpha: complex = None, beta: complex = None) -> np.ndarray:
     """Creates a one-qubit basis"""
 
     if alpha is None and beta is None:

@@ -115,27 +115,34 @@ def Cnot(idx0: int = 0, idx1: int = 1) -> np.ndarray:
     return ControlledU(idx0, idx1, PauliX())
 
 
-def Measure(
-    psi: np.ndarray, idx: int, tostate: int = 0, collapse: bool = True
-) -> (float, np.ndarray):
+def single_measurement(psi) -> np.ndarray:
     rho = density(psi)
-    op = Projector(zeros(1)) if tostate == 0 else Projector(ones(1))
-
-    if idx > 0:
-        op = np.kron(kpow(Identity(), idx), op)
-    if idx < nbits(psi) - 1:
-        op = np.kron(op, kpow(Identity(), nbits(psi) - idx - 1))
-
+    op = Projector(zeros(1))
+    op = np.kron(op, kpow(Identity(), nbits(psi) - 1))
     prob0 = np.trace(np.matmul(op, rho))
+    probs = np.array([prob0.real, 1 - prob0.real])
 
-    if collapse:
-        mvmul = np.dot(op, psi)
-        divisor = np.real(np.linalg.norm(mvmul))
-        if divisor > 1e-10:
-            normed = mvmul / divisor
-        else:
-            raise AssertionError("Measure() collapses to 0.0 probability state.")
+    return probs
 
-        return np.real(prob0), normed
 
-    return np.real(prob0), psi
+def measure(psi: np.ndarray, shots) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray):
+    probs = np.abs(psi) ** 2
+    possible = np.arange(len(psi))
+    outcome = np.random.choice(possible, p=probs, size=shots)
+
+    psi = np.zeros(len(psi))
+    psi[outcome[-1]] = 1
+    counts = np.unique(outcome, return_counts=True)[1]
+    return psi, outcome, counts, counts / shots
+
+    # if collapse:
+    #     mvmul = np.dot(op, psi)
+    #     divisor = np.real(np.linalg.norm(mvmul))
+    #     if divisor > 1e-10:
+    #         normed = mvmul / divisor
+    #     else:
+    #         raise AssertionError("Measure() collapses to 0.0 probability state.")
+    #
+    #     return np.real(prob0), normed
+    #
+    # return np.real(prob0), psi
