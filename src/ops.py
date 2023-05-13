@@ -119,14 +119,14 @@ def measurement(
     psi, operator: np.ndarray, shots: int = 1
 ) -> (np.ndarray, np.ndarray, np.float64):
     psi = operator @ psi
-    probs = np.diag(density(psi)).real
+    probs = np.around(np.diag(density(psi)).real, 3)
     possible_states = np.arange(len(psi))
     measurement = np.random.choice(possible_states, p=probs, size=shots)
 
     collapsed_psi = np.zeros(len(psi))
     collapsed_psi[measurement[-1]] = 1
     counts = np.unique(measurement, return_counts=True)[1]
-    return probs, counts, counts / shots, psi
+    return probs, counts, np.around(counts / shots, 3), psi
 
 
 def measure(psi: np.ndarray, shots) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray):
