@@ -81,10 +81,10 @@ def power_iteration(a, num_iterations) -> (np.ndarray, np.ndarray):
     return eigenvalues, eigenvectors
 
 
-def new_basis_1q(theta, phi) -> np.ndarray:
+def ansatz_1qubi(theta, phi) -> np.ndarray:
     Rx = np.cos(theta * 0.5) * Identity() - 1j * np.sin(theta * 0.5) * _PAULI_X
     Ry = np.cos(phi * 0.5) * Identity() - 1j * np.sin(phi * 0.5) * _PAULI_Y
-    basis0 = np.array([0, 1])
+    basis0 = np.array([1, 0])
     return Ry @ Rx @ basis0, Rx, Ry, basis0
 
 
@@ -124,27 +124,6 @@ def VQE_naive(H, inter):
             Energies[i, j] = Energy
 
     print(np.min(ExpectationValues))
-    ind = np.argmin(ExpectationValues)
-    print(Energies.flatten()[ind])
-
-
-def VQE_naive_2q(H, inter):
-    angles = np.arange(0, 180, inter)
-    n = np.size(angles)
-    ExpectationValues = np.zeros((n, n))
-    Energies = np.zeros((n, n))
-    EigValues, _ = analytical_solver(H)
-    for i in range(n):
-        theta = np.pi * angles[i] / 180.0
-        for j in range(n):
-            phi = np.pi * angles[j] / 180.0
-            new_basis, Rx, Ry, basis = new_basis_2q(theta, phi)
-            Energy = new_basis.conj().T @ H @ new_basis
-            Ediff = abs(np.real(EigValues[0] - Energy))
-            ExpectationValues[i, j] = Ediff
-            Energies[i, j] = Energy
-
-    print(np.min(np.real(ExpectationValues)))
     ind = np.argmin(ExpectationValues)
     print(Energies.flatten()[ind])
 
