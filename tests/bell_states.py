@@ -195,25 +195,45 @@ if __name__ == "__main__":
         "and thereafter proceeding with an application of the Hadamard gate to the first qubit. \n\n"
     )
 
-    # print(
-    #     "Result of applying the Hadamard gate to b00, after having applied the CNOT: "
-    # )
-    #
-    # HCNOT_b00 = np.kron(Hadamard(), Identity()) @ CNOT_b00
-    # HCNOT_b00 = np.where(HCNOT_b00 > 1e-10, HCNOT_b00, 0)
-    # print(HCNOT_b00)
-    #
-    # print("Result of applying the Hadamard gate to b00: ")
-    # H_b00 = np.kron(Hadamard(), np.eye(2)) @ b00
-    # print(H_b00)
-    #
-    # print(
-    #     "Result of applying the CNOT gate to b00, after having applied the Hadamard gate: "
-    # )
-    # CNOTH_b00 = CNOT @ H_b00
-    # print(CNOTH_b00)
-    #
-    # Hadamard_adj = np.kron(Hadamard(), Identity()).conj().T
-    # CNOT_adj = Cnot().conj().T
-    #
-    # print(Hadamard_adj @ CNOT_adj @ b00)
+    print("Applying the CNOT(0, 1)-gate and Hadamard gate to the bell state: ")
+    print(
+        "---------------------------------------------------------------------------------"
+    )
+
+    print("The bell state prior to the application of CNOT(0, 1) and HADAMARD gates: ")
+    print(b00, "\n")
+
+    CNOT_b00 = CNOT @ b00
+    HCNOT_b00 = np.kron(Hadamard(), Identity()) @ CNOT_b00
+    HCNOT_b00 = np.where(HCNOT_b00 > 1e-10, HCNOT_b00, 0)
+    print("The bell state after the application CNOT(0, 1) and HADAMARD gates: ")
+    print(HCNOT_b00)
+
+    print(
+        "What we did now, was to uncompute the entanglement. Thus, we are back to the 2-qubit system\n"
+        "prior to the application of the entangler circuit which created the bell pair. We would achieve \n"
+        "the exact same result if we computed the adjoints of the CNOT(0,1) and Hadamard gate, and \n"
+        "applied them in the same order they are applied in the entangler circuit. Otherwise, we have \n"
+        "to apply the gates in the opposite order. \n"
+    )
+
+    Hadamard_adj = np.kron(Hadamard(), Identity()).conj().T
+    CNOT_adj = Cnot().conj().T
+    print("Result of applying the adjoint of the gates to the b00 state: ")
+    print(Hadamard_adj @ CNOT_adj @ b00, "\n")
+
+    print("Measurements after application of CNOT(0, 1) and Hadamar gate to b00")
+    print("-------------------------------------------------------------\n")
+    psi, outcome, counts, meas_probs = measure(HCNOT_b00, 1000)
+    print("State of the system after measurement: ")
+    print(psi, "\n")
+    print("Observed states during measurements: ")
+    print(f"|00> : {counts[0]}")
+    print(f"|10> : {0}")
+    print(f"|01> : {0}")
+    print(f"|11> : {0} \n")
+    print("Observed probabilities for each of the basis states of the bell pair: ")
+    print(f"|00> : {meas_probs[0]*100}%")
+    print(f"|10> : {0.0}%")
+    print(f"|01> : {0.0}%")
+    print(f"|11> : {0.0}% \n\n")
