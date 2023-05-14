@@ -22,12 +22,14 @@ def hamilitonian(dim=2, e0=0, e1=1.0, Xdiag=1.0, Xnondiag=0.0, lam=1.0):
     return Hamilitonian
 
 
-def Pauli_hamiltionian(dim=2, e0=0.0, e1=0.0, Xdiag=1.0, Xnondiag=0.0, lam=1.0):
+def hamiltonian_1qubit(
+    dim=2, e0=0.0, e1=0.0, V11=1.0, V12=1.0, V21=1.0, V22=1.0, lam=1.0
+):
     eps = (e0 + e1) / 2
     omega = (e0 - e1) / 2
-    c = (Xdiag - Xdiag) / 2
-    omega_z = (Xdiag - (-Xdiag)) / 2
-    omega_x = Xnondiag
+    c = (V11 + V22) / 2
+    omega_z = (V11 - V22) / 2
+    omega_x = V21
 
     H0 = eps * Identity() + omega * _PAULI_Z
     H1 = c * Identity() + omega_z * _PAULI_Z + omega_x * _PAULI_X
@@ -76,8 +78,6 @@ def power_iteration(a, num_iterations) -> (np.ndarray, np.ndarray):
         eigenvalues.append(eigenvalue)
         a = a - eigenvalue * np.outer(x, x)
 
-    print("Eigenvalues:", eigenvalues[1])
-    print("Eigenvectors:", eigenvectors[1])
     return eigenvalues, eigenvectors
 
 
@@ -172,5 +172,3 @@ def VQE_1q(H, epochs=100, eta=0.1):
         theta -= eta * theta_grad
         phi -= eta * phi_grad
     print(abs(get_energy(H, theta, phi)))
-
-
