@@ -45,7 +45,7 @@ if __name__ == "__main__":
     print(f"|00> : {meas_probs[0]*100}%")
     print(f"|10> : {0}")
     print(f"|01> : {0}")
-    print(f"|11> : {meas_probs[1]*100}%")
+    print(f"|11> : {meas_probs[1]*100}%\n")
 
     print(
         "\nThose we're measurements performed on the first of the bell pairs, with 1000 shots \n"
@@ -103,25 +103,117 @@ if __name__ == "__main__":
     )
 
     CNOT = Cnot()
-    print(CNOT)
+    print("The CNOT(0, 1)-gate represented as a matrix: ")
+    print(CNOT.real, "\n")
 
-    print("Result of applying the CNOT gate to b00: ")
+    print("The bell state prior to the application of CNOT(0, 1)-gate: ")
+    print(b00, "\n")
+
+    print("The bell state after the application CNOT(0, 1)-gate: ")
     CNOT_b00 = CNOT @ b00
-    print(CNOT_b00)
+    print(CNOT_b00, "\n")
+
+    print("Measurements after application of CNOT(0, 1)-gate")
+    print("-------------------------------------------------------------\n")
+    psi, outcome, counts, meas_probs = measure(CNOT_b00, 1000)
+    print("State of the system after measurement: ")
+    print(psi, "\n")
+    print("Observed states during measurements: ")
+    print(f"|00> : {counts[0]}")
+    print(f"|10> : {0}")
+    print(f"|01> : {counts[1]}")
+    print(f"|11> : {0} \n")
+    print("Observed probabilities for each of the basis states of the bell pair: ")
+    print(f"|00> : {meas_probs[0]*100}%")
+    print(f"|10> : {0}")
+    print(f"|01> : {meas_probs[1]*100}%")
+    print(f"|11> : {0} \n\n")
+
+    print("Constructing and applying the Hadamard gate to the first bell pair: ")
+    print(
+        "---------------------------------------------------------------------------------"
+    )
+
+    HADAMARD = Hadamard()
+    print("The HADAMARD represented as a matrix: ")
+    print(HADAMARD.real, "\n")
 
     print(
-        "Result of applying the Hadamard gate to b00, after having applied the CNOT: "
+        "Before proceeding, we have to extend our Hadamard matrix by a tensor product with a\n"
+        "2x2 identity matrix, in order to apply it to the bell state. Here, we will applying the\n"
+        "Hadamard to the first qubit of the pair, thus we tensor the Hadamard gate from the right.\n"
     )
-    HCNOT_b00 = np.kron(Hadamard(), Identity()) @ CNOT_b00
-    HCNOT_b00 = np.where(HCNOT_b00 > 1e-10, HCNOT_b00, 0)
-    print(HCNOT_b00)
 
-    print("Result of applying the Hadamard gate to b00: ")
-    H_b00 = np.kron(Hadamard(), np.eye(2)) @ b00
-    print(H_b00)
+    q0_Hadamard = np.kron(HADAMARD, Identity())
+    print("The extended Hadamard gate using matrix representation: ")
+    print(q0_Hadamard.real, "\n")
+
+    print("The bell state prior to the application of HADAMARD gate: ")
+    print(b00, "\n")
+
+    print("The bell state after the application HADAMARD gate: ")
+    H_b00 = q0_Hadamard @ b00
+    print(H_b00, "\n")
+
+    print("Measurements after application of CNOT(0, 1)-gate")
+    print("-------------------------------------------------------------\n")
+    psi, outcome, counts, meas_probs = measure(H_b00, 1000)
+    print("State of the system after measurement: ")
+    print(psi, "\n")
+    print("Observed states during measurements: ")
+    print(f"|00> : {counts[0]}")
+    print(f"|10> : {counts[1]}")
+    print(f"|01> : {counts[2]}")
+    print(f"|11> : {counts[3]} \n")
+    print("Observed probabilities for each of the basis states of the bell pair: ")
+    print(f"|00> : {meas_probs[0]*100}%")
+    print(f"|10> : {meas_probs[1]*100}%")
+    print(f"|01> : {meas_probs[2]*100}%")
+    print(f"|11> : {meas_probs[3]*100}% \n\n")
 
     print(
-        "Result of applying the CNOT gate to b00, after having applied the Hadamard gate: "
+        "Before proceeding with the application of both gates to the bell pair, we are going\n"
+        "to check what would happen if we applied the Hadamard gate to the second qubit of the\n"
+        "bell pair instead of the first.\n"
     )
-    CNOTH_b00 = CNOT @ H_b00
-    print(CNOTH_b00)
+
+    q1_Hadamard = np.kron(Identity(), HADAMARD)
+    print("The extended Hadamard gate using matrix representation: ")
+    print(q1_Hadamard.real, "\n")
+
+    print("The bell state prior to the application of HADAMARD gate: ")
+    print(b00, "\n")
+
+    print("The bell state after the application HADAMARD gate: ")
+    H_b00 = q1_Hadamard @ b00
+    print(H_b00, "\n")
+
+    print(
+        "As we can see, the action of applying the Hadamard gate to the second qubit of the \n"
+        "bell pair results in the exact same state as in the case of applying the Hadamard gate \n"
+        "to the first qubit of the pair. We can now proceed with the application of CNOT(0, 1)-gate \n"
+        "and thereafter proceeding with an application of the Hadamard gate to the first qubit. \n\n"
+    )
+
+    # print(
+    #     "Result of applying the Hadamard gate to b00, after having applied the CNOT: "
+    # )
+    #
+    # HCNOT_b00 = np.kron(Hadamard(), Identity()) @ CNOT_b00
+    # HCNOT_b00 = np.where(HCNOT_b00 > 1e-10, HCNOT_b00, 0)
+    # print(HCNOT_b00)
+    #
+    # print("Result of applying the Hadamard gate to b00: ")
+    # H_b00 = np.kron(Hadamard(), np.eye(2)) @ b00
+    # print(H_b00)
+    #
+    # print(
+    #     "Result of applying the CNOT gate to b00, after having applied the Hadamard gate: "
+    # )
+    # CNOTH_b00 = CNOT @ H_b00
+    # print(CNOTH_b00)
+    #
+    # Hadamard_adj = np.kron(Hadamard(), Identity()).conj().T
+    # CNOT_adj = Cnot().conj().T
+    #
+    # print(Hadamard_adj @ CNOT_adj @ b00)
