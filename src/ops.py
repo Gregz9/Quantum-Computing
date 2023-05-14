@@ -137,7 +137,34 @@ def measure(psi: np.ndarray, shots) -> (np.ndarray, np.ndarray, np.ndarray, np.n
     psi = np.zeros(len(psi))
     psi[outcome[-1]] = 1
     counts = np.unique(outcome, return_counts=True)[1]
-    return psi, outcome, counts, counts / shots
+    return psi, outcome, counts, np.around(counts / shots, 3)
+
+
+def projective_measurement(psi: np.ndarray, idx: int = 0, to_state: int = 0):
+    # probabilities along the diagonal -> better approach: square the state
+    dens = density(psi)
+
+    proj_op = (
+        np.array([[1.0, 0.0], [0.0, 0.0]])
+        if to_state == 0
+        else np.array([[0.0, 0.0], [0.0, 1.0]])
+    )
+
+    if idx > 0:
+        op = np.kron(kpow(Identity(), idx), proj_op)
+    if idx < nbits(psi) - 1:
+        op = np.kron(proj_op, kpow(Identity(), nbits(psi) - idx - 1))
+
+    prob = np.trace(op @ dens)
+
+    mvmul = op @ psi
+    divisor = np.real(np.linalg.norm(mvmul))
+    if divisor > 1e-10:
+        normed = mvmul / divisor
+    else:
+        raise AssertionError("State collapsed to 0.0 probability")
+
+    return np.around(prob.real, 3), normed
 
     # if collapse:
     #     mvmul = np.dot(op, psi)

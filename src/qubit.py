@@ -134,15 +134,3 @@ def state(alpha: complex = None, beta: complex = None) -> np.ndarray:
     qb[1] = beta
 
     return qb
-
-
-def bell_state(a: int, b: int) -> np.ndarray:
-    """Create one of the four bell states"""
-
-    if a not in [0, 1] or b not in [0, 1]:
-        raise ValueError("Values for a and b are required to be either 0 or 1")
-
-    psi = bitstring(a, b)
-    ext_HAD = np.kron(Hadamard(), Identity())
-    psi = ext_HAD @ psi
-    return Cnot() @ psi
