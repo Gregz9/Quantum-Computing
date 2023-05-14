@@ -3,7 +3,6 @@ import numpy as np
 import math
 from src.solvers import *
 from src.ops import *
-from src.bell_states import *
 
 if __name__ == "__main__":
     # Preparing two seperate qubits each in one of the basis state |0> and |1>
@@ -14,9 +13,12 @@ if __name__ == "__main__":
     shots = 1000
 
     choices = ["X", "Y", "Z", "H", "S"]
-    print("Enter one of the listed commands to apply a quantum gate: ")
+    print(
+        "Enter one of the listed commands to apply a quantum gate to basis states |0> and |1>: "
+    )
     print(choices)
     command = str(input("Enter command: "))
+    print("\n")
 
     while command in choices:
         if command == "X":
@@ -348,7 +350,9 @@ if __name__ == "__main__":
         else:
             break
 
-        print("Enter one of the listed commands to apply a quantum gate: ")
+        print(
+            "Enter one of the listed commands to apply a quantum gate to basis states |0> and |1>: "
+        )
         print(choices)
         command = str(input("Enter command: "))
         print("\n")
