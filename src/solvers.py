@@ -34,7 +34,7 @@ def hamiltonian_1qubit(
     H0 = eps * Identity() + omega * _PAULI_Z
     H1 = c * Identity() + omega_z * _PAULI_Z + omega_x * _PAULI_X
     H = H0 + lam * H1
-    return H
+    return H, [eps, c, omega, omega_z, omega_x]
 
 
 def analytical_solver(mat):
@@ -81,30 +81,25 @@ def power_iteration(a, num_iterations) -> (np.ndarray, np.ndarray):
     return eigenvalues, eigenvectors
 
 
-def ansatz_1qubi(theta, phi) -> np.ndarray:
+def ansatz_1qubit(theta, phi) -> np.ndarray:
     Rx = np.cos(theta * 0.5) * Identity() - 1j * np.sin(theta * 0.5) * _PAULI_X
     Ry = np.cos(phi * 0.5) * Identity() - 1j * np.sin(phi * 0.5) * _PAULI_Y
     basis0 = np.array([1, 0])
     return Ry @ Rx @ basis0, Rx, Ry, basis0
 
 
-def new_basis_2q(theta, phi, idx=0) -> np.ndarray:
-    Rx1 = np.cos(theta * 0.5) * Identity() - 1j * np.sin(theta * 0.5) * _PAULI_X
-    Rx2 = np.cos(phi * 0.5) * Identity() - 1j * np.sin(phi * 0.5) * _PAULI_X
-    Ry1 = np.cos(theta * 0.5) * Identity() - 1j * np.sin(theta * 0.5) * _PAULI_Y
-    Ry2 = np.cos(phi * 0.5) * Identity() - 1j * np.sin(phi * 0.5) * _PAULI_Y
-
-    Rz1 = np.cos(theta * 0.5) * Identity() - 1j * np.sin(theta * 0.5) * _PAULI_Z
-    Rz2 = np.cos(phi * 0.5) * Identity() - 1j * np.sin(phi * 0.5) * _PAULI_Z
-    CX_01 = Cnot(0, 1)
-    basis = np.zeros(4)
-    basis[idx] = 1
-    return (
-        np.kron(Rz1, Rz2) @ Cnot(0, 1) @ np.kron(Rx1, Rx2) @ basis,
-        Ry1,
-        Ry2,
-        basis,
+def measure_energy_1q(theta, phi, lmb, shots):
+    _, elements = hamiltonian_1qubit(
+        2, e0=0.0, e1=4.0, V11=3, V12=0.2, V21=0.2, V22=-3, lam=lmb
     )
+    # elements have the following structure: [eps, c, omega, omega_z, omega_x]
+
+    # In order to measure the estimated energy, we'll have to rewrite all
+    # elements of the Hamiltonian into the pauli Z basis, as it's the only
+    # of the pauli matrices with vectors |0> and |1> forming its basis.
+
+    init_state, _, _, _ = ansatz_1qubit(theta, phi)
+    print(np.abs(init_state))
 
 
 def VQE_naive(H, inter):
@@ -133,8 +128,6 @@ def get_energy(H, theta, phi, collapse_to=0):
     basis[collapse_to] = 1
     basis = RotationY(phi) @ RotationX(theta) @ basis
     return basis.conj().T @ H @ basis
-
-    return proj_oper.conj().T @ H @ proj_oper
 
 
 def VQE_1q(H, epochs=100, eta=0.1):
