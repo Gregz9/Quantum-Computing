@@ -99,7 +99,12 @@ def measure_energy_1q(theta, phi, lmb, shots):
     # of the pauli matrices with vectors |0> and |1> forming its basis.
 
     init_state, _, _, _ = ansatz_1qubit(theta, phi)
-    print(np.abs(init_state))
+    measure_z, _, counts, obs_probs_z = measure(init_state, shots)
+
+    init_state, _, _, _ = ansatz_1qubit(theta, phi)
+    measure_x = Hadamard() @ init_state
+    measure_x, _, counts, obs_probs_x = measure(measure_x, shots)
+
 
 
 def VQE_naive(H, inter):
