@@ -67,15 +67,17 @@ min_energy = np.zeros(len(lmbds))
 epochs = np.zeros(len(lmbds))
 for i, lmbd in enumerate(tqdm(lmbds)):
     init_angles = np.random.uniform(0, np.pi, size=2)
-    angles, _, energy, delta_energy = VQE_1qubit(
+    angles, epochs[i], energy, delta_energy = VQE_1qubit(
         learning_rate, max_epochs, num_shots, init_angles, lmbd
     )
     if epochs[i] < (epochs[i - 1] - 5):
         init_angles = np.random.uniform(0, np.pi, size=2)
-        angles, _, energy, delta_energy = VQE_1qubit(
+        angles, epochs[i], energy, delta_energy = VQE_1qubit(
             learning_rate, max_epochs, num_shots, init_angles, lmbd
         )
     min_energy[i] = measure_energy_1q(angles[0], angles[1], lmbd, num_shots)
 
+print(epochs)
+
 print(min_energy[i])
-plot_vqe_energies(min_energy, system_ener_an, lmbds)
+# plot_vqe_energies(min_energy, system_ener_an, lmbds)
