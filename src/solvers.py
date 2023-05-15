@@ -99,12 +99,41 @@ def measure_energy_1q(theta, phi, lmb, shots):
     # of the pauli matrices with vectors |0> and |1> forming its basis.
 
     init_state, _, _, _ = ansatz_1qubit(theta, phi)
-    measure_z, _, counts, obs_probs_z = measure(init_state, shots)
+    _, measure_z, counts, obs_probs_z = measure(init_state, shots)
 
     init_state, _, _, _ = ansatz_1qubit(theta, phi)
-    measure_x = Hadamard() @ init_state
-    measure_x, _, counts, obs_probs_x = measure(measure_x, shots)
+    measure_x = Hadamard() @ init_state
+    _, measure_x, counts, obs_probs_x = measure(measure_x, shots)
 
+    exp_val_z = (
+        (elements[2] + lmb * elements[3]) * (shots - 2 * np.sum(measure_z)) / shots
+    )
+    exp_val_x = lmb * elements[4] * (shots - 2 * np.sum(measure_x)) / shots
+    exp_val_i = elements[0] + elements[1] * lmb
+    exp_val = exp_val_z + exp_val_x + exp_val_i
+
+    return exp_val
+
+
+def VQE_1qubit(eta, epochs, num_shots, init_angles, lmbd):
+    epoch = 0
+    energy = measure_energy_1q(angles[0], angles[1], lmbd, shots)
+    for epoch in range(epochs):
+        grad = np.zeros((angles.shape))
+        for i in range(angles.shape):
+            angles_tmp = angles.copy()
+            angles_tmp[i] += np.pi / 2
+            ener_pl = measure_energy_1q(angles_tmp[0], angles_tmp[1], lmbd, shots)
+            angles_tmp[i] -= np.pi
+            ener_min = measure_energy_1q(angles_tmp[0], angles_tmp[1], lmbd, shots)
+            grad[i] = (ener_pl - ener_min) / 2
+        angles -= eta * grad
+        new_energy = measure_energy_1q(angles[0], angles[1], lmbd, shots)
+        if np.abs(new_energy - energy) < 1e-10:
+            break
+        energy = new_energy
+
+    return angles, epoch, energy, delta_energy
 
 
 def VQE_naive(H, inter):

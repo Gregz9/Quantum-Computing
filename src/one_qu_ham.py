@@ -33,7 +33,7 @@ for i, l in enumerate(lam):
 theta = np.pi
 phi = np.pi
 
-measure_energy_1q(theta, phi, lam[0], shots=1)
+enerrgy = measure_energy_1q(theta / 2, phi / 2, 0, shots=100)
 
 # figs, axs = plt.subplots(1, 1, figsize=(12, 12))
 # for j in range(2):
