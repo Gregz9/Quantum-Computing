@@ -116,24 +116,34 @@ def measure_energy_1q(theta, phi, lmb, shots):
 
 
 def VQE_1qubit(eta, epochs, num_shots, init_angles, lmbd):
+    angles = init_angles
     epoch = 0
-    energy = measure_energy_1q(angles[0], angles[1], lmbd, shots)
+    energy = measure_energy_1q(angles[0], angles[1], lmbd, num_shots)
     for epoch in range(epochs):
         grad = np.zeros((angles.shape))
-        for i in range(angles.shape):
+        for i in range(angles.shape[0]):
             angles_tmp = angles.copy()
             angles_tmp[i] += np.pi / 2
-            ener_pl = measure_energy_1q(angles_tmp[0], angles_tmp[1], lmbd, shots)
+            ener_pl = measure_energy_1q(angles_tmp[0], angles_tmp[1], lmbd, num_shots)
             angles_tmp[i] -= np.pi
-            ener_min = measure_energy_1q(angles_tmp[0], angles_tmp[1], lmbd, shots)
+            ener_min = measure_energy_1q(angles_tmp[0], angles_tmp[1], lmbd, num_shots)
             grad[i] = (ener_pl - ener_min) / 2
         angles -= eta * grad
-        new_energy = measure_energy_1q(angles[0], angles[1], lmbd, shots)
-        if np.abs(new_energy - energy) < 1e-10:
+        new_energy = measure_energy_1q(angles[0], angles[1], lmbd, num_shots)
+        delta_energy = np.abs(new_energy - energy)
+        if delta_energy < 1e-10:
             break
+
         energy = new_energy
 
     return angles, epoch, energy, delta_energy
+
+
+def calc_grad(angles, ind, lmbd, num_shots):
+    angles[ind] += np.pi / 2
+    ener_pl = measure_energy_1q(angles[0], angles[1], lmbd, num_shots)
+    angles[ind] -= np.pi
+    ener_min = measure_energy_1q(angles_tmp[0], angles_tmp[1], lmbd, num_shots)
 
 
 def VQE_naive(H, inter):

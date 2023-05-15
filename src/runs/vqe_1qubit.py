@@ -5,10 +5,37 @@ from src.solvers import *
 from src.ops import *
 from scipy.optimize import minimize
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 
 # Solving the Hamiltonian analytically
 
-lam = np.arange(0, 1, 0.05)
+
+def plot_energies(analytical, numerical=None, lmd=np.zeros(20)):
+    figs, axs = plt.subplots(1, 1, figsize=(12, 12))
+    for j in range(2):
+        axs.plot(lmd, analytical[:, j], label=f"$E_{j+1}$")
+        # axs.plot(lmd, numerical[:, j], label=f"$E_{j+1}$")
+    axs.set_xlabel(r"$\lambda$")
+    axs.set_label("Energy")
+    axs.grid()
+    axs.legend()
+    plt.show()
+
+
+def plot_vqe_energies(energies, analytical, lmbds):
+    figs, axs = plt.subplots(1, 1, figsize=(12, 12))
+    for i in range(2):
+        axs.plot(lmbds, energies, label=f"$E_0$")
+        axs.plot(lmbds, analytical[:, i], label=f"$E_{i+1}$")
+    axs.set_xlabel(r"$\lambda$")
+    axs.set_label("Energy")
+    axs.grid()
+    axs.legend()
+    plt.show()
+
+
+# lam = np.arange(0, 1, 0.05)
+lam = np.linspace(0.0, 1.0, 40)
 system_ener_an = np.zeros((len(lam), 2))
 for i, l in enumerate(lam):
     Ham, _ = hamiltonian_1qubit(
@@ -30,17 +57,25 @@ for i, l in enumerate(lam):
     perm = eig_vals.argsort()
     system_ener_num[i] = eig_vals[perm]
 
-theta = np.pi
-phi = np.pi
+# Solving for the eigenvalalues using the VQE
 
-enerrgy = measure_energy_1q(theta / 2, phi / 2, 0, shots=100)
+num_shots = 10000
+learning_rate = 0.3
+max_epochs = 400
+lmbds = np.linspace(0.0, 1.0, 40)
+min_energy = np.zeros(len(lmbds))
+epochs = np.zeros(len(lmbds))
+for i, lmbd in enumerate(tqdm(lmbds)):
+    init_angles = np.random.uniform(0, np.pi, size=2)
+    angles, _, energy, delta_energy = VQE_1qubit(
+        learning_rate, max_epochs, num_shots, init_angles, lmbd
+    )
+    if epochs[i] < (epochs[i - 1] - 5):
+        init_angles = np.random.uniform(0, np.pi, size=2)
+        angles, _, energy, delta_energy = VQE_1qubit(
+            learning_rate, max_epochs, num_shots, init_angles, lmbd
+        )
+    min_energy[i] = measure_energy_1q(angles[0], angles[1], lmbd, num_shots)
 
-# figs, axs = plt.subplots(1, 1, figsize=(12, 12))
-# for j in range(2):
-#     axs.plot(lam, system_ener_an[:, j], label=f"$E_{j+1}$")
-#     axs.plot(lam, system_ener_num[:, j], label=f"$E_{j+1}$")
-# axs.set_xlabel(r"$\lambda$")
-# axs.set_label("Energy")
-# axs.grid()
-# axs.legend()
-# plt.show()
+print(min_energy[i])
+plot_vqe_energies(min_energy, system_ener_an, lmbds)
