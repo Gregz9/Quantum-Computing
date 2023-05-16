@@ -152,46 +152,11 @@ def VQE_1qubit_momentum(eta, mnt, epochs, num_shots, init_angles, lmbd):
         change = new_change
         new_energy = measure_energy_1q(angles[0], angles[1], lmbd, num_shots)
         delta_energy = np.abs(new_energy - energy)
-        if delta_energy < 1e-10:
+        energy = new_energy
+        if delta_energy < 1e-7:
+            # return angles, epoch, energy, delta_energy
             break
 
-        energy = new_energy
-    return angles, epoch, energy, delta_energy
-
-
-def VQE_1qubit_ADAM(eta, epochs, num_shots, init_angles, lmbd):
-    beta1 = 0.9
-    beta2 = 0.999
-    angles = init_angles
-    m = np.zeros_like(angles)
-    v = np.zeros_like(angles)
-    t = 0
-    energy = measure_energy_1q(init_angles[0], init_angles[1], lmbd, num_shots)
-    change = np.zeros((angles.shape))
-    for epoch in range(epochs):
-        grad = np.zeros((angles.shape))
-        for i in range(angles.shape[0]):
-            angles_temp = angles.copy()
-            grad[i] = calc_grad(angles_temp, i, lmbd, num_shots)
-
-        t += 1
-        m = beta1 * m + (1 - beta1) * grad
-        v = beta2 * v + (1 - beta2) * (grad**2)
-
-        # Compute bias-corrected estimates
-        m_hat = m / (1 - beta1**t)
-        v_hat = v / (1 - beta2**t)
-
-        # Update angles
-        angles -= eta * m_hat / (np.sqrt(v_hat) + 1e-8)
-
-        # Compute new energy and check for convergence
-        new_energy = measure_energy_1q(angles[0], angles[1], lmbd, num_shots)
-        delta_energy = np.abs(new_energy - energy)
-        if delta_energy < 1e-10:
-            break
-
-        energy = new_energy
     return angles, epoch, energy, delta_energy
 
 
