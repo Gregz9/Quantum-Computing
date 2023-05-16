@@ -147,6 +147,24 @@ def ansatz_1qubit(theta, phi) -> np.ndarray:
     return Ry @ Rx @ basis0, Rx, Ry, basis0
 
 
+def ansatz_2qubit(theta, phi) -> np.ndarray:
+    basis0 = np.array([1, 0])
+    basis00 = np.kron(basis0, basis0)
+
+    Rx = np.cos(theta * 0.5) * Identity() - 1j * np.sin(theta * 0.5) * _PAULI_X
+    Ry = np.cos(phi * 0.5) * Identity() - 1j * np.sin(phi * 0.5) * _PAULI_Y
+
+    RyRx_q0 = Ry @ Rx
+    RyRx_q0 = np.kron(RyRx_q0, Identity())
+    init_state = RyRx_q0 @ basis00
+
+    RyRx_q1 = np.kron(Identity(), RyRx_q0)
+    init_state = RyRx_q1 @ init_state
+    init_state = Cnot(0, 1) @ init_state
+
+    return init_state
+
+
 def measure_energy_1q(theta, phi, lmb, shots):
     _, elements = hamiltonian_1qubit(
         2, e0=0.0, e1=4.0, V11=3, V12=0.2, V21=0.2, V22=-3, lam=lmb
