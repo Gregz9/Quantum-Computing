@@ -90,7 +90,8 @@ def power_iter(mat, iters=100):
     print("Eigenvector:", x)
 
 
-def power_iteration(a, num_iterations) -> (np.ndarray, np.ndarray):
+def power_iteration(a, num_iterations, seed=11337) -> (np.ndarray, np.ndarray):
+    np.random.seed(seed)
     n = len(a)
     eigenvalues = []
     eigenvectors = []
@@ -106,7 +107,7 @@ def power_iteration(a, num_iterations) -> (np.ndarray, np.ndarray):
         eigenvalues.append(eigenvalue)
         a = a - eigenvalue * np.outer(x, x)
 
-    return eigenvalues, eigenvectors
+    return np.array(eigenvalues), np.array(eigenvectors)
 
 
 def ansatz_1qubit(theta, phi) -> np.ndarray:
