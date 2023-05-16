@@ -109,6 +109,23 @@ def power_iteration(a, num_iterations, seed=11337) -> (np.ndarray, np.ndarray):
 
     return np.array(eigenvalues), np.array(eigenvectors)
 
+def QR_solver(H, delta=1e-6, iters=100):
+    m, n = H.shape
+    Q = np.eye(m)
+
+    for iteration in range(iters):
+        Q, R = np.linalg.qr(H)
+        # A = np.dot(R, Q)
+        H = Q.T @ H @ Q
+
+        # Check convergence
+        off_diag_sum = np.sum(np.abs(H - np.diag(np.diag(H))))
+        if off_diag_sum < delta:
+            break
+
+    eigenvalues = np.diag(H)
+    return eigenvalues
+
 
 def ansatz_1qubit(theta, phi) -> np.ndarray:
     Rx = np.cos(theta * 0.5) * Identity() - 1j * np.sin(theta * 0.5) * _PAULI_X
