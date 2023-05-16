@@ -27,3 +27,12 @@ print(eig_vals[perm])
 eig_vals = QR_solver(H)
 perm = eig_vals.argsort()
 print(eig_vals[perm])
+
+state = np.random.random(size=4)
+print(
+    np.kron(np.array([0.0, 1.0]), Identity())
+    @ np.kron(np.array([0.0, 1.0]), Identity()).T
+)
+print(np.outer(state, state))
+print(trace_first(state))
+print(trace_second(state))
