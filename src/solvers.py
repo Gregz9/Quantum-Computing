@@ -133,7 +133,7 @@ def von_neumann(eigvals, eigvecs, ind):
     trace_op = trace_first if ind == 0 else trace_second
     entropy = np.zeros(eigvecs.shape[1])
     for i in range(eigvecs.shape[1]):
-        sub_den = trace_operation(eigvecs[:, i])
+        sub_den = trace_op(eigvecs[:, i])
         sub_den = np.linalg.eigvalsh(sub_den)
         sub_den = np.ma.masked_equal(sub_den, 0).compressed()
         entropy[i] = -np.sum(sub_den * np.log2(sub_den))
