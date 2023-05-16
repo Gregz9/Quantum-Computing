@@ -37,6 +37,34 @@ def hamiltonian_1qubit(
     return H, [eps, c, omega, omega_z, omega_x]
 
 
+def hamiltonian_2qubit(lmbd, Hx, Hz, H0_list):
+    H0 = np.diag(H0_list)
+    HI = Hx * np.kron(PauliX(), PauliX()) + Hz * np.kron(PauliZ(), PauliZ())
+    return H0 + lmbd * HI
+
+
+def trace_first(state):
+    density = np.outer(state, state.conj())
+    basis0 = np.array([1, 0])
+    basis1 = np.array([0, 1])
+    qubit0_0 = np.kron(basis0, Identity())
+    qubit0_1 = np.kron(basis1, Identity())
+    return (
+        qubit0_0.conj() @ density @ qubit0_0.T + qubit0_1.conj() @ density @ qubit0_1.T
+    )
+
+
+def trace_second(state):
+    density = np.outer(state, state.conj())
+    basis0 = np.array([1, 0])
+    basis1 = np.array([0, 1])
+    qubit1_0 = np.kron(Identity(), basis0)
+    qubit1_1 = np.kron(Identity(), basis1)
+    return (
+        qubit1_0.conj() @ density @ qubit1_0.T + qubit1_1.conj() @ density @ qubit1_1.T
+    )
+
+
 def analytical_solver(mat):
     EigValues, EigVectors = np.linalg.eig(mat)
     permute = EigValues.argsort()
