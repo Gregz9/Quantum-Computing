@@ -158,7 +158,8 @@ def ansatz_2qubit(theta, phi) -> np.ndarray:
     RyRx_q0 = np.kron(RyRx_q0, Identity())
     init_state = RyRx_q0 @ basis00
 
-    RyRx_q1 = np.kron(Identity(), RyRx_q0)
+    RyRx_q1 = Ry @ Rx
+    RyRx_q1 = np.kron(Identity(), RyRx_q1)
     init_state = RyRx_q1 @ init_state
     init_state = Cnot(0, 1) @ init_state
 
@@ -190,6 +191,21 @@ def measure_energy_1q(theta, phi, lmb, shots):
     exp_val = exp_val_z + exp_val_x + exp_val_i
 
     return exp_val
+
+
+def measure_energy_2q(angles: np.ndarray, lmb: float, shots: int):
+    Hx = 2.0
+    Hz = 3.0
+    e00, e01, e10, e11 = np.array([0.0, 2.5, 6.5, 7.0])
+
+    # The Hamiltonian introduced in part d of the project can be rewriten 
+    # using first projection operators, which in turn allows us to use 
+    # the Identity and Pauli Z matrices to rewrite the hamiltonian of this 
+    # 2 qubit system.
+
+
+
+
 
 
 def VQE_1qubit(eta, epochs, num_shots, init_angles, lmbd):
