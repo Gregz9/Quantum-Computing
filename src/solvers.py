@@ -147,16 +147,21 @@ def ansatz_1qubit(theta, phi) -> np.ndarray:
     return Ry @ Rx @ basis0, Rx, Ry, basis0
 
 
-def ansatz_2qubit(theta, phi) -> np.ndarray:
+def ansatz_2qubit(
+    angles: np.ndarray = np.array([np.pi / 2, np.pi / 2, np.pi / 2, np.pi / 2])
+) -> np.ndarray:
     basis0 = np.array([1, 0])
     basis00 = np.kron(basis0, basis0)
 
-    Rx = np.cos(theta * 0.5) * Identity() - 1j * np.sin(theta * 0.5) * _PAULI_X
-    Ry = np.cos(phi * 0.5) * Identity() - 1j * np.sin(phi * 0.5) * _PAULI_Y
+    Rx = np.cos(angles[0] * 0.5) * Identity() - 1j * np.sin(angles[0] * 0.5) * _PAULI_X
+    Ry = np.cos(angles[1] * 0.5) * Identity() - 1j * np.sin(angles[1] * 0.5) * _PAULI_Y
 
     RyRx_q0 = Ry @ Rx
     RyRx_q0 = np.kron(RyRx_q0, Identity())
     init_state = RyRx_q0 @ basis00
+
+    Rx = np.cos(angles[2] * 0.5) * Identity() - 1j * np.sin(angles[2] * 0.5) * _PAULI_X
+    Ry = np.cos(angles[3] * 0.5) * Identity() - 1j * np.sin(angles[3] * 0.5) * _PAULI_Y
 
     RyRx_q1 = Ry @ Rx
     RyRx_q1 = np.kron(Identity(), RyRx_q1)
@@ -193,19 +198,26 @@ def measure_energy_1q(theta, phi, lmb, shots):
     return exp_val
 
 
-def measure_energy_2q(angles: np.ndarray, lmb: float, shots: int):
+def measure_energy_2q(
+    angles: np.ndarray = np.zeros(2), lmb: float = 1.0, shots: int = 1
+):
     Hx = 2.0
     Hz = 3.0
-    e00, e01, e10, e11 = np.array([0.0, 2.5, 6.5, 7.0])
+    E_noninteracting = np.array([0.0, 2.5, 6.5, 7.0])
+    signs = (1 / 4) * np.array(
+        [
+            [1.0, 1.0, 1.0, 1.0],
+            [1.0, 1.0, -1.0, -1.0],
+            [1.0, -1.0, 1.0, -1.0],
+            [1.0, -1.0, -1.0, 1.0],
+        ]
+    )
+    coeffs = np.sum(signs * E_noninteracting, axis=1)
 
-    # The Hamiltonian introduced in part d of the project can be rewriten 
-    # using first projection operators, which in turn allows us to use 
-    # the Identity and Pauli Z matrices to rewrite the hamiltonian of this 
+    # The Hamiltonian introduced in part d of the project can be rewriten
+    # using first projection operators, which in turn allows us to use
+    # the Identity and Pauli Z matrices to rewrite the hamiltonian of this
     # 2 qubit system.
-
-
-
-
 
 
 def VQE_1qubit(eta, epochs, num_shots, init_angles, lmbd):
