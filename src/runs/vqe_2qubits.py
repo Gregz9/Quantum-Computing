@@ -14,7 +14,7 @@ basis11 = np.array([0.0, 0.0, 0.0, 1.0])
 
 # Testing if the initialization of a two qubit ansatz works correctly
 state = ansatz_2qubit()
-# print(state)
+print(state)
 
 Z = np.array([[1.0, 0.0], [0.0, -1.0]])
 I = np.eye(2)
@@ -37,3 +37,22 @@ assert np.allclose(np.outer(basis11, basis11), (1 / 4) * (II - ZI - IZ + ZZ))
 # However, instead of writing each of those by them selves, we are going to set
 # up a 4x4 matrix, and compute four coefficients A,B,C and D in order to rewrite
 # the Hamiltonian using tensor products consisting of I and Z.
+# print(IZ)
+# print(Swap() @ IZ @ Swap())
+
+X = PauliX()
+XX = np.kron(X, X)
+H = Hadamard()
+HH = np.kron(H, H)
+# print(XX)
+
+measure_xx = Cnot(0, 1) @ HH @ state
+print(state**2)
+print(state.conj() * state)
+print(measure_xx.conj() * measure_xx)
+
+measure_zz = Cnot() @ state
+print(measure_zz**2)
+print(measure_zz.conj() * measure_zz)
+# ones = np.ones(4) * 0.25
+# print(ZI @ ones)

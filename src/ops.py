@@ -115,6 +115,10 @@ def Cnot(idx0: int = 0, idx1: int = 1) -> np.ndarray:
     return ControlledU(idx0, idx1, PauliX())
 
 
+def Swap(idx0: int = 0, idx1: int = 1) -> np.ndarray:
+    return Cnot(idx1, idx0) @ Cnot(idx0, idx1) @ Cnot(idx1, idx0)
+
+
 def measurement(
     psi, operator: np.ndarray, shots: int = 1
 ) -> (np.ndarray, np.ndarray, np.float64):
@@ -165,15 +169,3 @@ def projective_measurement(psi: np.ndarray, idx: int = 0, to_state: int = 0):
         raise AssertionError("State collapsed to 0.0 probability")
 
     return np.around(prob.real, 3), normed
-
-    # if collapse:
-    #     mvmul = np.dot(op, psi)
-    #     divisor = np.real(np.linalg.norm(mvmul))
-    #     if divisor > 1e-10:
-    #         normed = mvmul / divisor
-    #     else:
-    #         raise AssertionError("Measure() collapses to 0.0 probability state.")
-    #
-    #     return np.real(prob0), normed
-    #
-    # return np.real(prob0), psi

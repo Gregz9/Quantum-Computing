@@ -212,12 +212,14 @@ def measure_energy_2q(
             [1.0, -1.0, -1.0, 1.0],
         ]
     )
-    coeffs = np.sum(signs * E_noninteracting, axis=1)
-
     # The Hamiltonian introduced in part d of the project can be rewriten
     # using first projection operators, which in turn allows us to use
     # the Identity and Pauli Z matrices to rewrite the hamiltonian of this
     # 2 qubit system.
+    coeffs = np.sum(signs * E_noninteracting, axis=1)
+    init_ansatz = ansatz_2qubit(angles)
+
+    measure_ZI = Swap()
 
 
 def VQE_1qubit(eta, epochs, num_shots, init_angles, lmbd):
