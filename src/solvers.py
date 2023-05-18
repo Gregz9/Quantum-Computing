@@ -171,7 +171,7 @@ def ansatz_2qubit(
     return init_state
 
 
-def measure_energy_1q(theta, phi, lmb, shots):
+def measure_energy_1q(theta=np.pi/2, phi=np.pi/2, lmb=1.0, shots=1):
     _, elements = hamiltonian_1qubit(
         2, e0=0.0, e1=4.0, V11=3, V12=0.2, V21=0.2, V22=-3, lam=lmb
     )
