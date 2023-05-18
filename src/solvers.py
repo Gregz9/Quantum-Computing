@@ -209,8 +209,8 @@ def measure_energy_2q(
     signs = (1 / 4) * np.array(
         [
             [1.0, 1.0, 1.0, 1.0],
-            [1.0, 1.0, -1.0, -1.0],
             [1.0, -1.0, 1.0, -1.0],
+            [1.0, 1.0, -1.0, -1.0],
             [1.0, -1.0, -1.0, 1.0],
         ]
     )
@@ -219,7 +219,6 @@ def measure_energy_2q(
     # the Identity and Pauli Z matrices to rewrite the hamiltonian of this
     # 2 qubit system.
     coeffs = np.sum(signs * E_non, axis=1)
-    print(coeffs)
     init_ansatz = ansatz_2qubit(angles)
 
     post_state_ZI, measure_ZI, counts_ZI, obs_probs_IZ = measure(init_ansatz, shots)
@@ -234,10 +233,10 @@ def measure_energy_2q(
     post_state_XX, measure_XX, counts_XX, obs_probs_XX = measure(measure_XX, shots)
 
     exp_vals = np.zeros(4)
-    measures = np.array([measure_ZI, measure_IZ, measure_ZZ, measure_XX])
+    measures = np.array([measure_IZ, measure_ZI, measure_ZZ, measure_XX])
     consts = np.array([coeffs[1], coeffs[2], coeffs[3] + lmb * Hz, lmb * Hx])
     for i in range(exp_vals.shape[0]):
-        counts = [len(np.where(measures[i] == j)[0]) for j in range(len(exp_vals))]
+        counts = [len(np.where(measures[i] == j)[0]) for j in range(4)]
         exp_vals[i] = counts[0] + counts[1] - counts[2] - counts[3]
 
     return coeffs[0] + np.sum(consts * exp_vals) / shots
@@ -287,12 +286,33 @@ def VQE_1qubit_momentum(eta, mnt, epochs, num_shots, init_angles, lmbd):
 
     return angles, epoch, energy, delta_energy
 
+def VQE_2qubit_momentum(eta, mnt, epochs, num_shots, init_angles, lmbd):
+    angles = init_angles
+    energy = measure_energy_2q(init_angles, lmbd, num_shots)
+    change = np.zeros((angles.shape))
+    for epoch in range(epochs):
+        grad = np.zeros((angles.shape))
+        for i in range(angles.shape[0]):
+            angles_temp = angles.copy()
+            grad[i] = calc_grad(angles_temp, i, lmbd, num_shots)
+        new_change = eta * grad + mnt * change
+        angles -= new_change
+        change = new_change
+        new_energy = measure_energy_2q(angles, lmbd, num_shots)
+        delta_energy = np.abs(new_energy - energy)
+        energy = new_energy
+        if delta_energy < 1e-5:
+            # return angles, epoch, energy, delta_energy
+            break
+
+    return angles, epoch, energy, delta_energy
+
 
 def calc_grad(angles, ind, lmbd, num_shots):
     angles[ind] += np.pi / 2
-    ener_pl = measure_energy_1q(angles[0], angles[1], lmbd, num_shots)
+    ener_pl = measure_energy_2q(angles, lmbd, num_shots)
     angles[ind] -= np.pi
-    ener_min = measure_energy_1q(angles[0], angles[1], lmbd, num_shots)
+    ener_min = measure_energy_2q(angles, lmbd, num_shots)
     grad = (ener_pl - ener_min) / 2
     return grad
 
