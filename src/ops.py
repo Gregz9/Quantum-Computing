@@ -135,6 +135,7 @@ def measurement(
 
 def measure(psi: np.ndarray, shots) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray):
     probs = np.abs(psi) ** 2
+    # print(probs)
     possible = np.arange(len(psi))
     outcome = np.random.choice(possible, p=probs, size=shots)
 

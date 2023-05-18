@@ -171,7 +171,7 @@ def ansatz_2qubit(
     return init_state
 
 
-def measure_energy_1q(theta=np.pi/2, phi=np.pi/2, lmb=1.0, shots=1):
+def measure_energy_1q(theta=np.pi / 2, phi=np.pi / 2, lmb=1.0, shots=1):
     _, elements = hamiltonian_1qubit(
         2, e0=0.0, e1=4.0, V11=3, V12=0.2, V21=0.2, V22=-3, lam=lmb
     )
@@ -199,11 +199,13 @@ def measure_energy_1q(theta=np.pi/2, phi=np.pi/2, lmb=1.0, shots=1):
 
 
 def measure_energy_2q(
-    angles: np.ndarray = np.zeros(2), lmb: float = 1.0, shots: int = 1
+    angles: np.ndarray = np.array([np.pi / 2, np.pi / 2, np.pi / 2, np.pi / 2]),
+    lmb: float = 1.0,
+    shots: int = 1000,
 ):
     Hx = 2.0
     Hz = 3.0
-    E_noninteracting = np.array([0.0, 2.5, 6.5, 7.0])
+    E_non = np.array([0.0, 2.5, 6.5, 7.0])
     signs = (1 / 4) * np.array(
         [
             [1.0, 1.0, 1.0, 1.0],
@@ -216,10 +218,29 @@ def measure_energy_2q(
     # using first projection operators, which in turn allows us to use
     # the Identity and Pauli Z matrices to rewrite the hamiltonian of this
     # 2 qubit system.
-    coeffs = np.sum(signs * E_noninteracting, axis=1)
+    coeffs = np.sum(signs * E_non, axis=1)
+    print(coeffs)
     init_ansatz = ansatz_2qubit(angles)
 
-    measure_ZI = Swap()
+    post_state_ZI, measure_ZI, counts_ZI, obs_probs_IZ = measure(init_ansatz, shots)
+
+    measure_IZ = Swap() @ init_ansatz
+    post_state_IZ, measure_IZ, counts_IZ, obs_probs_IZ = measure(measure_IZ, shots)
+
+    measure_ZZ = Cnot(1, 0) @ init_ansatz
+    post_state_ZZ, measure_ZZ, counts_ZZ, obs_probs_ZZ = measure(measure_ZZ, shots)
+
+    measure_XX = Cnot(1, 0) @ np.kron(Hadamard(), Hadamard()) @ init_ansatz
+    post_state_XX, measure_XX, counts_XX, obs_probs_XX = measure(measure_XX, shots)
+
+    exp_vals = np.zeros(4)
+    measures = np.array([measure_ZI, measure_IZ, measure_ZZ, measure_XX])
+    consts = np.array([coeffs[1], coeffs[2], coeffs[3] + lmb * Hz, lmb * Hx])
+    for i in range(exp_vals.shape[0]):
+        counts = [len(np.where(measures[i] == j)[0]) for j in range(len(exp_vals))]
+        exp_vals[i] = counts[0] + counts[1] - counts[2] - counts[3]
+
+    return coeffs[0] + np.sum(consts * exp_vals) / shots
 
 
 def VQE_1qubit(eta, epochs, num_shots, init_angles, lmbd):
