@@ -189,22 +189,24 @@ def ansatz_2qubit(
     return init_state
 
 
-def measure_energy_J1(angles, v, shots):
+def measure_energy_J1(
+    angles=np.array([np.pi / 2, np.pi / 2, np.pi / 2, np.pi / 2]), v=1.0, shots=1
+):
     init_ansatz = ansatz_2qubit(angles)
     H = Hadamard()
 
-    post_state_ZI, measure_ZI, counts_ZI, obs_probs_ZI = measure(init_ansatz)
+    post_state_ZI, measure_ZI, counts_ZI, obs_probs_ZI = measure(init_ansatz, shots)
 
     measure_IZ = Swap() @ init_ansatz
-    post_state_IZ, measure_IZ, counts_IZ, obs_probs_IZ = measure(measure_IZ)
+    post_state_IZ, measure_IZ, counts_IZ, obs_probs_IZ = measure(measure_IZ, shots)
 
     measure_XX = Cnot(1, 0) @ np.kron(H, H) @ init_ansatz
-    post_state_XX, measure_XX, counts_XX, obs_probs_XX = measure(measure_XX)
+    post_state_XX, measure_XX, counts_XX, obs_probs_XX = measure(measure_XX, shots)
 
     measure_YY = (
         Cnot(1, 0) @ np.kron(H @ Sgate().conj().T, H @ Sgate().conj().T) @ init_ansatz
     )
-    post_state_YY, measure_YY, counts_YY, obs_probs_YY = measure(measure_YY)
+    post_state_YY, measure_YY, counts_YY, obs_probs_YY = measure(measure_YY, shots)
 
     exp_vals = np.zeros(4)
     measures = np.array([measure_IZ, measure_ZI, measure_XX, measure_YY])
@@ -287,11 +289,15 @@ def measure_energy_2q(
     return coeffs[0] + np.sum(consts * exp_vals) / shots
 
 
-def chose_measurement(length):
-    if length == 2:
+def chose_measurement(length, J=0):
+    if length == 2 and J == 0:
         measurement_operation = measure_energy_1q
-    elif length == 4:
+    elif length == 2 and J > 0:
+        measurement_operation = measure_energy_J1
+    elif length == 4 and J == 0:
         measurement_operation = measure_energy_2q
+    elif length == 4 and J > 0:
+        measurement_operation = measure_energy_J1
 
     return measurement_operation
 
@@ -320,15 +326,15 @@ def VQE_1qubit(eta, epochs, num_shots, init_angles, lmbd):
 
 
 # Generalized version of VQE
-def VQE(eta, epochs, num_shots, init_angles, lmbd):
-    measure_energy = chose_measurement(len(init_angles))
+def VQE(eta, epochs, num_shots, init_angles, lmbd, J=0):
+    measure_energy = chose_measurement(len(init_angles), J)
     angles = init_angles.copy()
     energy = measure_energy(angles, lmbd, num_shots)
     for epoch in range(epochs):
         grad = np.zeros((angles.shape))
         for i in range(angles.shape[0]):
             angles_tmp = angles.copy()
-            grad[i] = calc_grad(angles_tmp, i, lmbd, num_shots)
+            grad[i] = calc_grad(angles_tmp, i, lmbd, num_shots, J)
         angles -= eta * grad
         new_energy = measure_energy(angles, lmbd, num_shots)
         delta_energy = np.abs(new_energy - energy)
@@ -340,8 +346,8 @@ def VQE(eta, epochs, num_shots, init_angles, lmbd):
     return angles, epoch, energy, delta_energy
 
 
-def VQE_momentum(eta, mnt, epochs, num_shots, init_angles, lmbd):
-    measure_energy = chose_measurement(len(init_angles))
+def VQE_momentum(eta, mnt, epochs, num_shots, init_angles, lmbd, J=0):
+    measure_energy = chose_measurement(len(init_angles), J)
     angles = init_angles
     energy = measure_energy(init_angles, lmbd, num_shots)
     change = np.zeros((angles.shape))
@@ -349,7 +355,7 @@ def VQE_momentum(eta, mnt, epochs, num_shots, init_angles, lmbd):
         grad = np.zeros((angles.shape))
         for i in range(angles.shape[0]):
             angles_temp = angles.copy()
-            grad[i] = calc_grad(angles_temp, i, lmbd, num_shots)
+            grad[i] = calc_grad(angles_temp, i, lmbd, num_shots, J)
         new_change = eta * grad + mnt * change
         angles -= new_change
         change = new_change
@@ -384,8 +390,8 @@ def VQE_2qubit_momentum(eta, mnt, epochs, num_shots, init_angles, lmbd):
     return angles, epoch, energy, delta_energy
 
 
-def calc_grad(angles, ind, lmbd, num_shots):
-    measure_energy = chose_measurement(angles.shape[0])
+def calc_grad(angles, ind, lmbd, num_shots, J=0):
+    measure_energy = chose_measurement(angles.shape[0], J)
     angles[ind] += np.pi / 2
     ener_pl = measure_energy(angles, lmbd, num_shots)
     angles[ind] -= np.pi
