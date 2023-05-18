@@ -37,9 +37,3 @@ assert np.allclose(np.outer(basis11, basis11), (1 / 4) * (II - ZI - IZ + ZZ))
 # the Hamiltonian using tensor products consisting of I and Z.
 
 
-state = ansatz_2qubit()
-
-exp_val = measure_energy_2q()
-print(exp_val)
-H = hamiltonian_2qubit(1.0, 2.0, 3.0, [0.0, 2.5, 6.5, 7.0])
-print(state.conj().T @ H @ state)
