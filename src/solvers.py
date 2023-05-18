@@ -189,6 +189,33 @@ def ansatz_2qubit(
     return init_state
 
 
+def measure_energy_J1(angles, v, shots):
+    init_ansatz = ansatz_2qubit(angles)
+    H = Hadamard()
+
+    post_state_ZI, measure_ZI, counts_ZI, obs_probs_ZI = measure(init_ansatz)
+
+    measure_IZ = Swap() @ init_ansatz
+    post_state_IZ, measure_IZ, counts_IZ, obs_probs_IZ = measure(measure_IZ)
+
+    measure_XX = Cnot(1, 0) @ np.kron(H, H) @ init_ansatz
+    post_state_XX, measure_XX, counts_XX, obs_probs_XX = measure(measure_XX)
+
+    measure_YY = (
+        Cnot(1, 0) @ np.kron(H @ Sgate().conj().T, H @ Sgate().conj().T) @ init_ansatz
+    )
+    post_state_YY, measure_YY, counts_YY, obs_probs_YY = measure(measure_YY)
+
+    exp_vals = np.zeros(4)
+    measures = np.array([measure_IZ, measure_ZI, measure_XX, measure_YY])
+    consts = np.array([1 / 2, 1 / 2, -v / 2, v / 2])
+    for i in range(exp_vals.shape[0]):
+        counts = [len(np.where(measures[i] == j)[0]) for j in range(4)]
+        exp_vals[i] = counts[0] + counts[1] - counts[2] - counts[3]
+
+    return np.sum(exp_vals * consts) / shots
+
+
 def measure_energy_1q(angles=np.array([np.pi / 2, np.pi / 2]), lmb=1.0, shots=1):
     _, elements = hamiltonian_1qubit(
         2, e0=0.0, e1=4.0, V11=3, V12=0.2, V21=0.2, V22=-3, lam=lmb

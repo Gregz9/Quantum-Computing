@@ -21,3 +21,15 @@ for i, v in enumerate(tqdm(Vs)):
     eigvals_an[i] = eigvals[perm]
     eigvals_num_PI[i] = eig_num_PI[perm_num_PI]
     eigvals_num_QR[i] = eig_num_QR[perm_num_QR]
+
+""" 
+In order for us to be able to use the VQE, we'll have to rewrite 
+the Hamiltonian matrix of the lipkin model first in terms of the 
+Pauli operators, and then use the pauli operators to create gate 
+equivalences which lead to the hamiltonian being rotated into the 
+Z-basis, and thus allowing us to perform the measuremnt of the ex-
+pectation value for the lowest eigenstate. We'll do it in a seperate
+function, and import it to this file. The methodology used to rewrite 
+the Hamiltonian matrix/our ansatz is presented in "Quantum Computing 
+for Programmers" written by Robert Hundt, page 252.
+"""
