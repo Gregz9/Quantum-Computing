@@ -43,6 +43,24 @@ def hamiltonian_2qubit(lmbd, Hx, Hz, H0_list):
     return H0 + lmbd * HI
 
 
+def lipkin_H_J1(v):
+    H = np.array([[1.0, 0.0, -v], [0.0, 0.0, 0.0], [-v, 0.0, -1.0]])
+    return H
+
+
+def lipkin_H_J1_Pauli(v):
+    I = Identity()
+    X = PauliX()
+    Y = PauliY()
+    Z = PauliZ()
+    XX = np.kron(X, X)
+    YY = np.kron(Y, Y)
+    ZI = np.kron(Z, I)
+    IZ = np.kron(I, Z)
+    # The lipkin hamiltonian for spin J=1, particles N=2
+    H = (1 / 2) * (ZI + IZ) - (v / 2) * (XX - YY)
+
+
 def trace_first(state):
     density = np.outer(state, state.conj())
     basis0 = np.array([1, 0])
@@ -243,7 +261,6 @@ def measure_energy_2q(
 
 
 def chose_measurement(length):
-    
     if length == 2:
         measurement_operation = measure_energy_1q
     elif length == 4:
