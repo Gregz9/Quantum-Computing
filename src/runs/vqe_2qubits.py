@@ -38,16 +38,16 @@ assert np.allclose(np.outer(basis11, basis11), (1 / 4) * (II - ZI - IZ + ZZ))
 
 # print(measure_energy_2q())
 
-learning_rate = 0.3
-momentum = 0.3
-num_shots = 1000
+learning_rate = 0.2
+momentum = 0.2
+num_shots = 500
 max_epochs = 5000
 lmbds = np.linspace(0.0, 1.0, 11)
 min_energy = np.zeros(len(lmbds))
 epochs = np.zeros(len(lmbds))
 for i, lmbd in enumerate(tqdm(lmbds)):
     angles = np.random.uniform(0.0, np.pi, size=4)
-    angles, epoch, energy, delta_energy = VQE_2qubit_momentum(
+    angles, epoch, energy, delta_energy = VQE_momentum(
         learning_rate, momentum, max_epochs, num_shots, angles, lmbd
     )
     print(

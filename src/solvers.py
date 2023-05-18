@@ -171,7 +171,7 @@ def ansatz_2qubit(
     return init_state
 
 
-def measure_energy_1q(theta=np.pi / 2, phi=np.pi / 2, lmb=1.0, shots=1):
+def measure_energy_1q(angles=np.array([np.pi / 2, np.pi / 2]), lmb=1.0, shots=1):
     _, elements = hamiltonian_1qubit(
         2, e0=0.0, e1=4.0, V11=3, V12=0.2, V21=0.2, V22=-3, lam=lmb
     )
@@ -181,10 +181,10 @@ def measure_energy_1q(theta=np.pi / 2, phi=np.pi / 2, lmb=1.0, shots=1):
     # elements of the Hamiltonian into the pauli Z basis, as it's the only
     # of the pauli matrices with vectors |0> and |1> forming its basis.
 
-    init_state, _, _, _ = ansatz_1qubit(theta, phi)
+    init_state, _, _, _ = ansatz_1qubit(angles[0], angles[1])
     _, measure_z, counts, obs_probs_z = measure(init_state, shots)
 
-    init_state, _, _, _ = ansatz_1qubit(theta, phi)
+    init_state, _, _, _ = ansatz_1qubit(angles[0], angles[1])
     measure_x = Hadamard() @ init_state
     _, measure_x, counts, obs_probs_x = measure(measure_x, shots)
 
@@ -242,20 +242,30 @@ def measure_energy_2q(
     return coeffs[0] + np.sum(consts * exp_vals) / shots
 
 
+def chose_measurement(length):
+    
+    if length == 2:
+        measurement_operation = measure_energy_1q
+    elif length == 4:
+        measurement_operation = measure_energy_2q
+
+    return measurement_operation
+
+
 def VQE_1qubit(eta, epochs, num_shots, init_angles, lmbd):
     angles = init_angles
-    energy = measure_energy_1q(angles[0], angles[1], lmbd, num_shots)
+    energy = measure_energy_1q(angles, lmbd, num_shots)
     for epoch in range(epochs):
         grad = np.zeros((angles.shape))
         for i in range(angles.shape[0]):
             angles_tmp = angles.copy()
             angles_tmp[i] += np.pi / 2
-            ener_pl = measure_energy_1q(angles_tmp[0], angles_tmp[1], lmbd, num_shots)
+            ener_pl = measure_energy_1q(angles_tmp, lmbd, num_shots)
             angles_tmp[i] -= np.pi
-            ener_min = measure_energy_1q(angles_tmp[0], angles_tmp[1], lmbd, num_shots)
+            ener_min = measure_energy_1q(angles_tmp, lmbd, num_shots)
             grad[i] = (ener_pl - ener_min) / 2
         angles -= eta * grad
-        new_energy = measure_energy_1q(angles[0], angles[1], lmbd, num_shots)
+        new_energy = measure_energy_1q(angles, lmbd, num_shots)
         delta_energy = np.abs(new_energy - energy)
         if delta_energy < 1e-10:
             break
@@ -265,9 +275,31 @@ def VQE_1qubit(eta, epochs, num_shots, init_angles, lmbd):
     return angles, epoch, energy, delta_energy
 
 
-def VQE_1qubit_momentum(eta, mnt, epochs, num_shots, init_angles, lmbd):
+# Generalized version of VQE
+def VQE(eta, epochs, num_shots, init_angles, lmbd):
+    measure_energy = chose_measurement(len(init_angles))
+    angles = init_angles.copy()
+    energy = measure_energy(angles, lmbd, num_shots)
+    for epoch in range(epochs):
+        grad = np.zeros((angles.shape))
+        for i in range(angles.shape[0]):
+            angles_tmp = angles.copy()
+            grad[i] = calc_grad(angles_tmp, i, lmbd, num_shots)
+        angles -= eta * grad
+        new_energy = measure_energy(angles, lmbd, num_shots)
+        delta_energy = np.abs(new_energy - energy)
+        if delta_energy < 1e-10:
+            break
+
+        energy = new_energy
+
+    return angles, epoch, energy, delta_energy
+
+
+def VQE_momentum(eta, mnt, epochs, num_shots, init_angles, lmbd):
+    measure_energy = chose_measurement(len(init_angles))
     angles = init_angles
-    energy = measure_energy_1q(init_angles[0], init_angles[1], lmbd, num_shots)
+    energy = measure_energy(init_angles, lmbd, num_shots)
     change = np.zeros((angles.shape))
     for epoch in range(epochs):
         grad = np.zeros((angles.shape))
@@ -277,14 +309,14 @@ def VQE_1qubit_momentum(eta, mnt, epochs, num_shots, init_angles, lmbd):
         new_change = eta * grad + mnt * change
         angles -= new_change
         change = new_change
-        new_energy = measure_energy_1q(angles[0], angles[1], lmbd, num_shots)
+        new_energy = measure_energy(angles, lmbd, num_shots)
         delta_energy = np.abs(new_energy - energy)
         energy = new_energy
         if delta_energy < 1e-7:
-            # return angles, epoch, energy, delta_energy
             break
 
     return angles, epoch, energy, delta_energy
+
 
 def VQE_2qubit_momentum(eta, mnt, epochs, num_shots, init_angles, lmbd):
     angles = init_angles
@@ -301,7 +333,7 @@ def VQE_2qubit_momentum(eta, mnt, epochs, num_shots, init_angles, lmbd):
         new_energy = measure_energy_2q(angles, lmbd, num_shots)
         delta_energy = np.abs(new_energy - energy)
         energy = new_energy
-        if delta_energy < 1e-5:
+        if delta_energy < 1e-7:
             # return angles, epoch, energy, delta_energy
             break
 
@@ -309,10 +341,11 @@ def VQE_2qubit_momentum(eta, mnt, epochs, num_shots, init_angles, lmbd):
 
 
 def calc_grad(angles, ind, lmbd, num_shots):
+    measure_energy = chose_measurement(angles.shape[0])
     angles[ind] += np.pi / 2
-    ener_pl = measure_energy_2q(angles, lmbd, num_shots)
+    ener_pl = measure_energy(angles, lmbd, num_shots)
     angles[ind] -= np.pi
-    ener_min = measure_energy_2q(angles, lmbd, num_shots)
+    ener_min = measure_energy(angles, lmbd, num_shots)
     grad = (ener_pl - ener_min) / 2
     return grad
 
