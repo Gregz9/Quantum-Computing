@@ -48,7 +48,7 @@ def lipkin_H_J1(v):
     return H
 
 
-def lipkin_H_J1_Pauli(v, w=0, full = False):
+def lipkin_H_J1_Pauli(v, w=0, full=False):
     I = Identity()
     X = PauliX()
     Y = PauliY()
@@ -60,8 +60,52 @@ def lipkin_H_J1_Pauli(v, w=0, full = False):
     # The lipkin hamiltonian for spin J=1, particles N=2
     if not full:
         H = (1 / 2) * (ZI + IZ) - (v / 2) * (XX - YY)
-    else: 
-        H = (1 / 2) * (ZI + IZ) - (v / 2) * (XX - YY) + (w/2)*(XX +YY)
+    else:
+        H = (1 / 2) * (ZI + IZ) - (v / 2) * (XX - YY) + (w / 2) * (XX + YY)
+
+    return H
+
+
+def lipkin_H_J2_Pauli(v, w=0, full=False):
+    I = Identity()
+    X = PauliX()
+    Y = PauliY()
+    Z = PauliZ()
+    ZIII = np.kron(Z, np.kron(I, np.kron(I, I)))
+    IZII = np.kron(I, np.kron(Z, np.kron(I, I)))
+    IIZI = np.kron(I, np.kron(I, np.kron(Z, I)))
+    IIIZ = np.kron(I, np.kron(I, np.kron(I, Z)))
+
+    XXII = np.kron(X, np.kron(X, np.kron(I, I)))
+    XIXI = np.kron(X, np.kron(I, np.kron(X, I)))
+    XIIX = np.kron(X, np.kron(I, np.kron(I, X)))
+    IXXI = np.kron(I, np.kron(X, np.kron(X, I)))
+    IXIX = np.kron(I, np.kron(X, np.kron(I, X)))
+    IIXX = np.kron(I, np.kron(I, np.kron(X, X)))
+
+    YYII = np.kron(Y, np.kron(Y, np.kron(I, I)))
+    YIYI = np.kron(Y, np.kron(I, np.kron(Y, I)))
+    YIIY = np.kron(Y, np.kron(I, np.kron(I, Y)))
+    IYYI = np.kron(I, np.kron(Y, np.kron(Y, I)))
+    IYIY = np.kron(I, np.kron(Y, np.kron(I, Y)))
+    IIYY = np.kron(I, np.kron(I, np.kron(Y, Y)))
+
+    Jm = (X - 1j*Y)/np.sqrt(2)
+    Jp = (X - 1j*Y)/np.sqrt(2)
+
+    if not full:
+        H = (
+            (1 / 2) * (ZIII + IZII + IIZI + IIIZ)
+            - (v / 2) * (XXII + XIXI + XIIX + IXXI + IXIX + IIXX)
+            + (v / 2) * (YYII + YIYI + YIIY + IYYI + IYIY + IIYY)
+        )
+    else:
+        H = (
+            (1 / 2) * (ZIII + IZII + IIZI + IIIZ)
+            - (v / 2) * (XXII + XIXI + XIIX + IXXI + IXIX + IIXX)
+            + (v / 2) * (YYII + YIYI + YIIY + IYYI + IYIY + IIYY)
+            - (w / 2) * ( XXII + XIXI + XIIX + IXXI + IXIX + IIXX + YYII + YIYI + YIIY + IYYI + IYIY + IIYY)
+        )
 
     return H
 
