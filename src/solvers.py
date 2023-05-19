@@ -48,7 +48,7 @@ def lipkin_H_J1(v):
     return H
 
 
-def lipkin_H_J1_Pauli(v):
+def lipkin_H_J1_Pauli(v, w=0, full = False):
     I = Identity()
     X = PauliX()
     Y = PauliY()
@@ -58,7 +58,12 @@ def lipkin_H_J1_Pauli(v):
     ZI = np.kron(Z, I)
     IZ = np.kron(I, Z)
     # The lipkin hamiltonian for spin J=1, particles N=2
-    H = (1 / 2) * (ZI + IZ) - (v / 2) * (XX - YY)
+    if not full:
+        H = (1 / 2) * (ZI + IZ) - (v / 2) * (XX - YY)
+    else: 
+        H = (1 / 2) * (ZI + IZ) - (v / 2) * (XX - YY) + (w/2)*(XX +YY)
+
+    return H
 
 
 def trace_first(state):
