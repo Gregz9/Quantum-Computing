@@ -62,8 +62,8 @@ def lipkin_H_J1_Pauli(v, w=0, full=False):
     if not full:
         H = (1 / 2) * (ZI + IZ) - (v / 2) * (XX - YY)
     else:
-        H2 =  - (w / 2) * (XX + YY)
-        H = (1 / 2) * (ZI + IZ) - (v / 2) * (XX - YY) + np.where(H2 != 0, H2 -N/2, H2)
+        H2 = -(w / 2) * (XX + YY)
+        H = (1 / 2) * (ZI + IZ) - (v / 2) * (XX - YY) + H2
 
     return H
 
@@ -92,8 +92,8 @@ def lipkin_H_J2_Pauli(v, w=0, full=False):
     IYIY = np.kron(I, np.kron(Y, np.kron(I, Y)))
     IIYY = np.kron(I, np.kron(I, np.kron(Y, Y)))
 
-    Jm = (X - 1j*Y)/np.sqrt(2)
-    Jp = (X - 1j*Y)/np.sqrt(2)
+    Jm = (X - 1j * Y) / np.sqrt(2)
+    Jp = (X - 1j * Y) / np.sqrt(2)
 
     if not full:
         H = (
@@ -106,7 +106,21 @@ def lipkin_H_J2_Pauli(v, w=0, full=False):
             (1 / 2) * (ZIII + IZII + IIZI + IIIZ)
             - (v / 2) * (XXII + XIXI + XIIX + IXXI + IXIX + IIXX)
             + (v / 2) * (YYII + YIYI + YIIY + IYYI + IYIY + IIYY)
-            + (w / 2) * ( -XXII - XIXI - XIIX - IXXI - IXIX  -IIXX + YYII + YIYI + YIIY + IYYI + IYIY + IIYY)
+            + (w / 2)
+            * (
+                + XXII
+                + XIXI
+                + XIIX
+                + IXXI
+                + IXIX
+                + IIXX
+                + YYII
+                + YIYI
+                + YIIY
+                + IYYI
+                + IYIY
+                + IIYY
+            )
         )
 
     return H

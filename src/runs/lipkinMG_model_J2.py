@@ -1,7 +1,7 @@
 from src.solvers import *
 from src.ops import *
 import numpy as np
-import tqdm
+from tqdm import tqdm
 import matplotlib.pyplot as plt
 
 np.set_printoptions(linewidth=200)
@@ -39,8 +39,6 @@ Jp = (X + 1j * Y) / np.sqrt(2)
 JpJm = np.kron(Jp, Jm)
 JmJp = np.kron(Jm, Jp)
 
-print(0.5 * (JpJm + JmJp))
-
 JpJmII = np.kron(Jp, np.kron(Jm, np.kron(I, I)))
 JmJpII = np.kron(Jm, np.kron(Jp, np.kron(I, I)))
 JpIJmI = np.kron(Jp, np.kron(I, np.kron(Jm, I)))
@@ -70,20 +68,35 @@ H2 = -(w / 2) * (
     + IIJpJm
     + IIJmJp
 )
-H2 = np.where(H2 != 0, H2 - N / 2, H2)
 
-H2 = -(w / 2) * (
+H3 = -(w / 2) * (
     (XXII + XIXI + XIIX + IXXI + IXIX + IIXX + YYII + YIYI + YIIY + IYYI + IYIY + IIYY)
 )
-H2 = np.where(H2 != 0, H2 - N / 2, H2)
+
+assert np.allclose(H2, H3)
+
+# Summing to compare to the 5x5 matrix.
+# print(np.sum(H3[:, 0], axis=0))
+# print(np.sum(H3[:, 1:5], axis=0))
+# print(np.sum(H3[:, 5:11], axis=0))
+# print(np.sum(H3[:, 11:15], axis=0))
+# print(np.sum(H3[:, 15], axis=0))
+
+v_values_an = np.linspace(0, 2.0, 100)
+eigvals_an = np.zeros((len(v_values_an), 16))
+entropy = np.zeros((len(v_values_an), 16))
+
+for i, v in enumerate(tqdm(v_values_an)):
+    H = lipkin_H_J2_Pauli(v)
+    eig_vals, eig_vecs = np.linalg.eig(H)
+    eig_perm = eig_vals.argsort()
+    eigvals_an[i], eig_vecs = eig_vals[eig_perm], eig_vecs[:, eig_perm]
 
 
-H = lipkin_H_J1_Pauli(v=1.0, w=1.0, full=True)
-# H2 = np.where(H2 != 0, H2 - 4 / 2, H2)
-# print(H2)
-# H2 = np.where(H2 in np.diag(H2), H2, 0)
-# HL = H + H2
-# print("\n")
-# print(H2_2)
-
-# assert np.allclose(H2, H2_2)
+fig, axs = plt.subplots(1, 1, figsize=(8, 8))
+for i in range(len(eigvals_an[0])):
+    axs.plot(v_values_an, eigvals_an[:, i], label=f"$E_{i}$")
+axs.set_xlabel(r"$V/\epsilon$")
+axs.set_ylabel(r"$E/\epsilon$")
+axs.legend(loc="upper left")
+plt.show()
