@@ -28,13 +28,18 @@ IYYI = np.kron(I, np.kron(Y, np.kron(Y, I)))
 IYIY = np.kron(I, np.kron(Y, np.kron(I, Y)))
 IIYY = np.kron(I, np.kron(I, np.kron(Y, Y)))
 H = lipkin_H_J2_Pauli(v=1.0, w=2.0)
-# w = 1.0
-# H2 = -(w / 2) * (XXII + XIXI + XIIX + IXXI + IXIX + IIXX) - (w / 2) * (
-#     YYII + YIYI + YIIY + IYYI + IYIY + IIYY
-# )
+w = 1.0
+H2_2 = -(w / 2) * (
+    (XXII + XIXI + XIIX + IXXI + IXIX + IIXX + YYII + YIYI + YIIY + IYYI + IYIY + IIYY)
+)
 
 Jm = (X - 1j * Y) / np.sqrt(2)
 Jp = (X + 1j * Y) / np.sqrt(2)
+
+JpJm = np.kron(Jp, Jm)
+JmJp = np.kron(Jm, Jp)
+
+print(0.5 * (JpJm + JmJp))
 
 JpJmII = np.kron(Jp, np.kron(Jm, np.kron(I, I)))
 JmJpII = np.kron(Jm, np.kron(Jp, np.kron(I, I)))
@@ -49,10 +54,10 @@ IJmIJp = np.kron(I, np.kron(Jm, np.kron(I, Jp)))
 IIJpJm = np.kron(I, np.kron(I, np.kron(Jp, Jm)))
 IIJmJp = np.kron(I, np.kron(I, np.kron(Jm, Jp)))
 
+N = 4
 w = 1.0
-H2 = (w / 2) * (
-    -4
-    + JpJmII
+H2 = -(w / 2) * (
+    JpJmII
     + JmJpII
     + JpIJmI
     + JmIJpI
@@ -65,6 +70,20 @@ H2 = (w / 2) * (
     + IIJpJm
     + IIJmJp
 )
+H2 = np.where(H2 != 0, H2 - N / 2, H2)
 
-H_sum14 = np.sum(H[:, 1:4], axis=1)
-print(np.sum(H_sum14[1:4]))
+H2 = -(w / 2) * (
+    (XXII + XIXI + XIIX + IXXI + IXIX + IIXX + YYII + YIYI + YIIY + IYYI + IYIY + IIYY)
+)
+H2 = np.where(H2 != 0, H2 - N / 2, H2)
+
+
+H = lipkin_H_J1_Pauli(v=1.0, w=1.0, full=True)
+# H2 = np.where(H2 != 0, H2 - 4 / 2, H2)
+# print(H2)
+# H2 = np.where(H2 in np.diag(H2), H2, 0)
+# HL = H + H2
+# print("\n")
+# print(H2_2)
+
+# assert np.allclose(H2, H2_2)
