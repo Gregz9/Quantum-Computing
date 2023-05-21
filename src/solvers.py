@@ -62,7 +62,7 @@ def lipkin_H_J1_Pauli(v, w=0, full=False):
     if not full:
         H = (1 / 2) * (ZI + IZ) - (v / 2) * (XX - YY)
     else:
-        H2 = -(w / 2) * (- np.diag([2]*4) + XX + YY)
+        H2 = -(w / 2) * (-np.diag([2] * 4) + XX + YY)
         H = (1 / 2) * (ZI + IZ) - (v / 2) * (XX - YY) + H2
 
     return H
@@ -93,7 +93,21 @@ def lipkin_H_J2_Pauli(v, w=0, full=False):
     IIYY = np.kron(I, np.kron(I, np.kron(Y, Y)))
 
     Jm = (X - 1j * Y) / np.sqrt(2)
-    Jp = (X - 1j * Y) / np.sqrt(2)
+    Jp = (X + 1j * Y) / np.sqrt(2)
+
+    JpJmII = np.kron(Jp, np.kron(Jm, np.kron(I, I)))
+    JmJpII = np.kron(Jm, np.kron(Jp, np.kron(I, I)))
+    JpIJmI = np.kron(Jp, np.kron(I, np.kron(Jm, I)))
+    JmIJpI = np.kron(Jm, np.kron(I, np.kron(Jp, I)))
+    JpIIJm = np.kron(Jp, np.kron(I, np.kron(I, Jm)))
+    JmIIJp = np.kron(Jm, np.kron(I, np.kron(I, Jp)))
+    IJpJmI = np.kron(I, np.kron(Jp, np.kron(Jm, I)))
+    IJmJpI = np.kron(I, np.kron(Jm, np.kron(Jp, I)))
+    IJpIJm = np.kron(I, np.kron(Jp, np.kron(I, Jm)))
+    IJmIJp = np.kron(I, np.kron(Jm, np.kron(I, Jp)))
+    IIJpJm = np.kron(I, np.kron(I, np.kron(Jp, Jm)))
+    IIJmJp = np.kron(I, np.kron(I, np.kron(Jm, Jp)))
+
 
     if not full:
         H = (
@@ -107,7 +121,8 @@ def lipkin_H_J2_Pauli(v, w=0, full=False):
             - (v / 2) * (XXII + XIXI + XIIX + IXXI + IXIX + IIXX)
             + (v / 2) * (YYII + YIYI + YIIY + IYYI + IYIY + IIYY)
             + (w / 2)
-            * ( -np.diag([4]*16)
+            * (
+                -np.diag([4] * 16)
                 + XXII
                 + XIXI
                 + XIIX
