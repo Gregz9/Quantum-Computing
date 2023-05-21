@@ -62,7 +62,7 @@ def lipkin_H_J1_Pauli(v, w=0, full=False):
     if not full:
         H = (1 / 2) * (ZI + IZ) - (v / 2) * (XX - YY)
     else:
-        H2 = -(w / 2) * (XX + YY)
+        H2 = -(w / 2) * (- np.diag([2]*4) + XX + YY)
         H = (1 / 2) * (ZI + IZ) - (v / 2) * (XX - YY) + H2
 
     return H
@@ -101,13 +101,13 @@ def lipkin_H_J2_Pauli(v, w=0, full=False):
             - (v / 2) * (XXII + XIXI + XIIX + IXXI + IXIX + IIXX)
             + (v / 2) * (YYII + YIYI + YIIY + IYYI + IYIY + IIYY)
         )
-    else:
+    elif full:
         H = (
             (1 / 2) * (ZIII + IZII + IIZI + IIIZ)
             - (v / 2) * (XXII + XIXI + XIIX + IXXI + IXIX + IIXX)
             + (v / 2) * (YYII + YIYI + YIIY + IYYI + IYIY + IIYY)
             + (w / 2)
-            * (
+            * ( -np.diag([4]*16)
                 + XXII
                 + XIXI
                 + XIIX
