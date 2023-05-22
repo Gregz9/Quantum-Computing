@@ -298,20 +298,43 @@ def measure_energy_J1(
 
 
 def measure_energy_J2(angles: np.ndarray, v, shots):
-    
     ZIII = np.eye(16)
-    IZII = np.kron(np.eye(8)@Swap(), np.eye(8))
-    # In order to rotate the basis to ZIII from IIZI we have to apply the Swap gate twice. 
-    # This is equivalent to applying the Swap gate twice. This is equivalent to applying 
+    IZII = np.kron(np.eye(8) @ Swap(), np.eye(8))
+    # In order to rotate the basis to ZIII from IIZI we have to apply the Swap gate twice.
+    # This is equivalent to applying the Swap gate twice. This is equivalent to applying
     # this operator to The previous one we've computed
-    IIZI = IZII@np.kron(np.eye(2), np.kron(np.kron(np.eye(2), np.eye(2))@Swap(), np.eye(2)))
-    IIIZ = IIZI@np.kron(np.eye(2), np.kron(np.eye(2), np.kron(np.eye(2), np.eye(2))@Swap()))
+    IIZI = IZII @ np.kron(
+        np.eye(2), np.kron(np.kron(np.eye(2), np.eye(2)) @ Swap(), np.eye(2))
+    )
+    IIIZ = IIZI @ np.kron(
+        np.eye(2), np.kron(np.eye(2), np.kron(np.eye(2), np.eye(2)) @ Swap())
+    )
 
+    ZIZI = np.kron(Cnot(1, 0), no.eye(4)) @ np.kron(
+        I, np.kron(np.kron(I, I) @ Swap(), I)
+    )
     # Now we have to apply a set of gates to the other operators we have used to rewrite our hami-
     # ltonian matrix
-    XXII = np.kron(Cnot(1,0)@np.kron(Hadamard(), Hadamard()), np.eye(4))
-    XIXI = 
-    
+    XXII = np.kron(Cnot(1, 0) @ np.kron(Hadamard(), Hadamard()), np.eye(4))
+    # In the upcoming state, we're going to first rotate the basis into the state ZIZI
+    # And then rotate it into ZIII. However as you have seen, we have done the latter,
+    # and need only to mulitply the former operator with the latter we have created.
+    XIXI = ZIZI @ (np.kron(Hadamard(), np.eye(2)), np.kron(Hadamard(), np.eye(2)))
+    XIIX = ZIZI @ (
+        np.kron(Hadamard(), np.eye(2)),
+        np.kron(Hadamard(), np.eye(2)) @ Swap(),
+    )
+    IXXI = ZIZI @ (
+        np.kron(np.kron(Hadamard(), np.eye(2)) @ Swap(), np.kron(Hadamard(), np.eye(2)))
+    )
+    IXIX = ZIZI @ (
+        np.kron(
+            np.kron(Hadamard(), np.eye(2)) @ Swap(),
+            np.kron(Hadamard(), np.eye(2)) @ Swap(),
+        )
+    )
+    IIXX = ZIZI @ np.kron(I, np.kron(I, Cnot(1, 0) @ np.kron(Hadamard(), Hadamard())))
+
 
 def measure_energy_1q(angles=np.array([np.pi / 2, np.pi / 2]), lmb=1.0, shots=1):
     _, elements = hamiltonian_1qubit(
