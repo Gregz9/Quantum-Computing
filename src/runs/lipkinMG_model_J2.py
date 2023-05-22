@@ -8,7 +8,6 @@ import matplotlib.pyplot as plt
 v_values_an = np.linspace(0, 2.0, 100)
 w_values_an = np.linspace(0, 1.0, 100)
 eigvals_an = np.zeros((len(v_values_an), 16))
-eigvals_full_an = np.zeros((len(v_values_an), 16))
 entropy = np.zeros((len(v_values_an), 16))
 
 for i, v in enumerate(tqdm(v_values_an)):
@@ -19,19 +18,15 @@ for i, v in enumerate(tqdm(v_values_an)):
     eig_perm = eig_vals.argsort()
     eigvals_an[i], eig_vecs = eig_vals[eig_perm], eig_vecs[:, eig_perm]
 
-    eig_vals_full, eig_vecs_full = np.linalg.eig(HF)
-    eig_perm_full = eig_vals_full.argsort()
-    eigvals_full_an[i], eig_vecs_full = (
-        eig_vals_full[eig_perm_full],
-        eig_vecs_full[:, eig_perm_full],
-    )
 
+# fig, axs = plt.subplots(1, 1, figsize=(8, 8))
+# for i in range(len(eigvals_an[0])):
+#     axs.plot(v_values_an, eigvals_an[:, i], label=f"$E_{i}$", linestyle="dashed")
+# axs.set_xlabel(r"$V/\epsilon$")
+# axs.set_ylabel(r"$E/\epsilon$")
+# axs.legend(loc="upper left")
+# plt.show()
 
-fig, axs = plt.subplots(1, 1, figsize=(8, 8))
-for i in range(len(eigvals_full_an[0])):
-    axs.plot(v_values_an, eigvals_full_an[:, i], label=f"$E_{i}$")
-    axs.plot(v_values_an, eigvals_an[:, i], label=f"$E_{i}$", linestyle="dashed")
-axs.set_xlabel(r"$V/\epsilon$")
-axs.set_ylabel(r"$E/\epsilon$")
-axs.legend(loc="upper left")
-plt.show()
+# In order to be able to perform the measurement in the Z basis, we will need to
+# rotate our measurement basis into the ZIII basis. In order to do so, we are going
+# to use the approach presented by Robert Hundt in his book on Quantum computing.

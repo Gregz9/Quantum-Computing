@@ -297,6 +297,20 @@ def measure_energy_J1(
     return np.sum(exp_vals * consts) / shots
 
 
+def measure_energy_J2(angles: np.ndarray, v, shots):
+    
+    ZIII = np.eye(16)
+    IZII = np.kron(np.eye(8)@Swap(), np.eye(8))
+    # In order to rotate the basis to ZIII from IIZI we have to apply the Swap gate twice. 
+    # This is equivalent to applying the Swap gate twice. This is equivalent to applying 
+    # this operator to The previous one we've computed
+    IIZI = IZII@np.kron(np.eye(2), np.kron(np.kron(np.eye(2), np.eye(2))@Swap(), np.eye(2)))
+    IIIZ = IIZI@np.kron(np.eye(2), np.kron(np.eye(2), np.kron(np.eye(2), np.eye(2))@Swap()))
+
+    # Now we have to apply a set of gates to the other operators we have used to rewrite our hami-
+    # ltonian matrix
+    
+
 def measure_energy_1q(angles=np.array([np.pi / 2, np.pi / 2]), lmb=1.0, shots=1):
     _, elements = hamiltonian_1qubit(
         2, e0=0.0, e1=4.0, V11=3, V12=0.2, V21=0.2, V22=-3, lam=lmb
@@ -461,18 +475,16 @@ def VQE_Adam(eta, beta1, beta2, t, epochs, num_shots, init_angles, lmbd, J=0):
             grad[i] = calc_grad(angles_temp, i, lmbd, num_shots, J)
         m = beta1 * first + (1 - beta1) * grad
         v = beta2 * second + (1 - beta2) * grad * grad
-        m_term = m/(1.0 - beta1**t)
-        v_term = v/(1.0 - beta2**t)
-        angles -= eta*m_term/(np.sqrt(v_term)+1e-7)
+        m_term = m / (1.0 - beta1**t)
+        v_term = v / (1.0 - beta2**t)
+        angles -= eta * m_term / (np.sqrt(v_term) + 1e-7)
 
         new_energy = measure_energy(angles, lmbd, num_shots)
         delta_energy = np.abs(new_energy - energy)
         energy = new_energy
         if delta_energy < 1e-7:
             break
-    return angles, epoch,energy
-        
-
+    return angles, epoch, energy
 
 
 def VQE_2qubit_momentum(eta, mnt, epochs, num_shots, init_angles, lmbd):
