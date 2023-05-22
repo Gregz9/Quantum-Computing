@@ -108,7 +108,6 @@ def lipkin_H_J2_Pauli(v, w=0, full=False):
     IIJpJm = np.kron(I, np.kron(I, np.kron(Jp, Jm)))
     IIJmJp = np.kron(I, np.kron(I, np.kron(Jm, Jp)))
 
-
     if not full:
         H = (
             (1 / 2) * (ZIII + IZII + IIZI + IIIZ)
@@ -446,6 +445,34 @@ def VQE_momentum(eta, mnt, epochs, num_shots, init_angles, lmbd, J=0):
             break
 
     return angles, epoch, energy, delta_energy
+
+
+def VQE_Adam(eta, beta1, beta2, t, epochs, num_shots, init_angles, lmbd, J=0):
+    measure_enerfy = chose_measurement(len(init_angles), J)
+    angles = init_angles
+    energy = measure_energy(init_angles, lmbd, num_shots)
+    t = 0
+    for epoch in range(epochs):
+        m = 0.0
+        v = 0.0
+        t += 1
+        for i in range(angles.shape[0]):
+            angles_temp = angles.copy()
+            grad[i] = calc_grad(angles_temp, i, lmbd, num_shots, J)
+        m = beta1 * first + (1 - beta1) * grad
+        v = beta2 * second + (1 - beta2) * grad * grad
+        m_term = m/(1.0 - beta1**t)
+        v_term = v/(1.0 - beta2**t)
+        angles -= eta*m_term/(np.sqrt(v_term)+1e-7)
+
+        new_energy = measure_energy(angles, lmbd, num_shots)
+        delta_energy = np.abs(new_energy - energy)
+        energy = new_energy
+        if delta_energy < 1e-7:
+            break
+    return angles, epoch,energy
+        
+
 
 
 def VQE_2qubit_momentum(eta, mnt, epochs, num_shots, init_angles, lmbd):
