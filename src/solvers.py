@@ -309,6 +309,8 @@ def measure_energy_J2(angles: np.ndarray, v, shots):
 
     # Now we have to apply a set of gates to the other operators we have used to rewrite our hami-
     # ltonian matrix
+    XXII = np.kron(Cnot(1,0)@np.kron(Hadamard(), Hadamard()), np.eye(4))
+    XIXI = 
     
 
 def measure_energy_1q(angles=np.array([np.pi / 2, np.pi / 2]), lmb=1.0, shots=1):
