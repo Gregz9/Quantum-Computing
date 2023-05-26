@@ -344,9 +344,7 @@ def prep_circuit_lipkin_J2():
     # Rotating the Y-basis
     YYII = np.kron(
         Cnot(1, 0)
-        @ np.kron(
-            np.kron(Hadamard() @ Sgate().conj().T, Hadamard() @ Sgate().conj().T)
-        ),
+        @ np.kron(Hadamard() @ Sgate().conj().T, Hadamard() @ Sgate().conj().T),
         np.eye(4),
     )
 
@@ -355,23 +353,23 @@ def prep_circuit_lipkin_J2():
         np.kron(Hadamard() @ Sgate().conj().T, np.eye(2)),
     )
     YIIY = ZIZI @ np.kron(
-        np.kron(Hadamard() @ Sgate.conj().T, np.eye(2)),
-        np.kron(Hadamard() @ Sgate.conj().T, np.eye(2)) @ Swap(),
+        np.kron(Hadamard() @ Sgate().conj().T, np.eye(2)),
+        np.kron(Hadamard() @ Sgate().conj().T, np.eye(2)) @ Swap(),
     )
     IYYI = ZIZI @ np.kron(
-        np.kron(Hadamard() @ Sgate.conj().T, np.eye(2)) @ Swap(),
-        np.kron(Hadamard() @ Sgate.conj().T, np.eye(2)),
+        np.kron(Hadamard() @ Sgate().conj().T, np.eye(2)) @ Swap(),
+        np.kron(Hadamard() @ Sgate().conj().T, np.eye(2)),
     )
     IYIY = ZIZI @ np.kron(
-        np.kron(Hadamard() @ Sgate.conj().T, np.eye(2)) @ Swap(),
-        np.kron(Hadamard() @ Sgate.conj().T, np.eye(2)) @ Swap(),
+        np.kron(Hadamard() @ Sgate().conj().T, np.eye(2)) @ Swap(),
+        np.kron(Hadamard() @ Sgate().conj().T, np.eye(2)) @ Swap(),
     )
     IIYY = ZIZI @ np.kron(
         I,
         np.kron(
             I,
             Cnot(1, 0)
-            @ np.kron(Hadamard() @ Sgate.conj().T, Hadamard() @ Sgate.conj().T),
+            @ np.kron(Hadamard() @ Sgate().conj().T, Hadamard() @ Sgate().conj().T),
         ),
     )
     return [
