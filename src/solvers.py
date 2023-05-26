@@ -300,7 +300,8 @@ def measure_energy_J1(
     return np.sum(exp_vals * consts) / shots
 
 
-def measure_energy_J2(angles: np.ndarray, v, shots):
+def prep_circuit_lipkin_J2(angles: np.ndarray, v, shots):
+
     ZIII = np.eye(16)
     IZII = np.kron(np.eye(8) @ Swap(), np.eye(8))
     # In order to rotate the basis to ZIII from IIZI we have to apply the Swap gate twice.
@@ -367,6 +368,7 @@ def measure_energy_J2(angles: np.ndarray, v, shots):
             @ np.kron(Hadamard() @ Sgate.conj().T, Hadamard() @ Sgate.conj().T),
         ),
     )
+    return [ZIII, IZII, IIZI, IIIZ, XXII, XIXI, XIIX, IXXI, IXIX, IIXX, YYII, YIYI, YIIY, IYYI, IYIY, IIYY]
 
 
 def measure_energy_1q(angles=np.array([np.pi / 2, np.pi / 2]), lmb=1.0, shots=1):
