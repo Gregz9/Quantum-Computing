@@ -300,10 +300,10 @@ def measure_energy_J1(
     return np.sum(exp_vals * consts) / shots
 
 
-def prep_circuit_lipkin_J2(angles: np.ndarray, v, shots):
-
+def prep_circuit_lipkin_J2():
+    I = np.eye(2)
     ZIII = np.eye(16)
-    IZII = np.kron(np.eye(8) @ Swap(), np.eye(8))
+    IZII = np.kron(np.eye(4) @ Swap(), np.eye(4))
     # In order to rotate the basis to ZIII from IIZI we have to apply the Swap gate twice.
     # This is equivalent to applying the Swap gate twice. This is equivalent to applying
     # this operator to The previous one we've computed
@@ -314,7 +314,7 @@ def prep_circuit_lipkin_J2(angles: np.ndarray, v, shots):
         np.eye(2), np.kron(np.eye(2), np.kron(np.eye(2), np.eye(2)) @ Swap())
     )
 
-    ZIZI = np.kron(Cnot(1, 0), no.eye(4)) @ np.kron(
+    ZIZI = np.kron(Cnot(1, 0), np.eye(4)) @ np.kron(
         I, np.kron(np.kron(I, I) @ Swap(), I)
     )
     # Now we have to apply a set of gates to the other operators we have used to rewrite our hami-
@@ -323,8 +323,10 @@ def prep_circuit_lipkin_J2(angles: np.ndarray, v, shots):
     # In the upcoming state, we're going to first rotate the basis into the state ZIZI
     # And then rotate it into ZIII. However as you have seen, we have done the latter,
     # and need only to mulitply the former operator with the latter we have created.
-    XIXI = ZIZI @ (np.kron(Hadamard(), np.eye(2)), np.kron(Hadamard(), np.eye(2)))
-    XIIX = ZIZI @ (
+    XIXI = ZIZI @ np.kron(
+        np.kron(Hadamard(), np.eye(2)), np.kron(Hadamard(), np.eye(2))
+    )
+    XIIX = ZIZI @ np.kron(
         np.kron(Hadamard(), np.eye(2)),
         np.kron(Hadamard(), np.eye(2)) @ Swap(),
     )
@@ -341,9 +343,13 @@ def prep_circuit_lipkin_J2(angles: np.ndarray, v, shots):
 
     # Rotating the Y-basis
     YYII = np.kron(
-        Cnot(1, 0) @ np.kron(Hadamard() @ Sgate.conj().T, Hadamard() @ Sgate.conj().T),
+        Cnot(1, 0)
+        @ np.kron(
+            np.kron(Hadamard() @ Sgate().conj().T, Hadamard() @ Sgate().conj().T)
+        ),
         np.eye(4),
     )
+
     YIYI = ZIZI @ np.kron(
         np.kron(Hadamard() @ Sgate().conj().T, np.eye(2)),
         np.kron(Hadamard() @ Sgate().conj().T, np.eye(2)),
@@ -368,7 +374,24 @@ def prep_circuit_lipkin_J2(angles: np.ndarray, v, shots):
             @ np.kron(Hadamard() @ Sgate.conj().T, Hadamard() @ Sgate.conj().T),
         ),
     )
-    return [ZIII, IZII, IIZI, IIIZ, XXII, XIXI, XIIX, IXXI, IXIX, IIXX, YYII, YIYI, YIIY, IYYI, IYIY, IIYY]
+    return [
+        ZIII,
+        IZII,
+        IIZI,
+        IIIZ,
+        XXII,
+        XIXI,
+        XIIX,
+        IXXI,
+        IXIX,
+        IIXX,
+        YYII,
+        YIYI,
+        YIIY,
+        IYYI,
+        IYIY,
+        IIYY,
+    ]
 
 
 def measure_energy_1q(angles=np.array([np.pi / 2, np.pi / 2]), lmb=1.0, shots=1):
