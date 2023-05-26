@@ -1,37 +1,29 @@
 import numpy as np
+import matplotlib.pyplot as plt
+from src.ops import *
+from src.solvers import *
+from tqdm import tqdm
+
+np.set_printoptions(linewidth=200)
+
+H = lipkin_H_J2_Pauli(v=1.0, w=1.0, full=True)
+v_values_an = np.linspace(0, 2.0, 100)
+w_values_an = np.linspace(0, 1.0, 100)
+eigvals_an = np.zeros((len(v_values_an), 16))
 
 
-def create_hamiltonian_matrix(N, W):
-    matrix_size = 2**N
-    hamiltonian = np.zeros((matrix_size, matrix_size))
+for i, v in enumerate(tqdm(v_values_an)):
+    H = lipkin_H_J2_Pauli(v, w_values_an[i], True)
 
-    for i in range(matrix_size):
-        for j in range(matrix_size):
-            binary_i = format(i, f"0{N}b")
-            binary_j = format(j, f"0{N}b")
-            term = -N
-
-            for p in range(N):
-                for q in range(N):
-                    if p != q:
-                        spin_operator = 1
-
-                        if binary_i[p] == "0" and binary_i[q] == "1":
-                            spin_operator *= 1  # Jp+Jq-
-                        elif binary_i[p] == "1" and binary_i[q] == "0":
-                            spin_operator *= 1  # Jq+Jp-
-                        else:
-                            spin_operator = 0
-
-                        term += spin_operator
-
-            hamiltonian[i, j] = (1 / 2) * W * term
-
-    return hamiltonian
+    eig_vals, eig_vecs = np.linalg.eig(H)
+    eig_perm = eig_vals.argsort()
+    eigvals_an[i], eig_vecs = eig_vals[eig_perm], eig_vecs[:, eig_perm]
 
 
-N = 4  # Number of particles
-W = 1.0  # Coefficient W
-
-hamiltonian_matrix = create_hamiltonian_matrix(N, W)
-print(hamiltonian_matrix)
+fig, axs = plt.subplots(1, 1, figsize=(8, 8))
+for i in range(len(eigvals_an[0])):
+    axs.plot(v_values_an, eigvals_an[:, i], label=f"$E_{i}$")
+axs.set_xlabel(r"$V/\epsilon$")
+axs.set_ylabel(r"$E/\epsilon$")
+axs.legend(loc="upper left")
+plt.show()

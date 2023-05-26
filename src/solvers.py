@@ -115,13 +115,16 @@ def lipkin_H_J2_Pauli(v, w=0, full=False):
             + (v / 2) * (YYII + YIYI + YIIY + IYYI + IYIY + IIYY)
         )
     elif full:
+        pwr = 4
+        N1 = I - Z
+        N4 = np.kron(N1, np.kron(N1, np.kron(N1, N1))) * (1 / 2) ** (pwr / 2)
         H = (
             (1 / 2) * (ZIII + IZII + IIZI + IIIZ)
             - (v / 2) * (XXII + XIXI + XIIX + IXXI + IXIX + IIXX)
             + (v / 2) * (YYII + YIYI + YIIY + IYYI + IYIY + IIYY)
             + (w / 2)
             * (
-                -np.diag([4] * 16)
+                -N4
                 + XXII
                 + XIXI
                 + XIIX
