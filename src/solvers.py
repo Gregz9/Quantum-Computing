@@ -365,12 +365,9 @@ def prep_circuit_lipkin_J2():
         np.kron(Hadamard() @ Sgate().conj().T, np.eye(2)) @ Swap(),
     )
     IIYY = ZIZI @ np.kron(
-        I,
-        np.kron(
-            I,
-            Cnot(1, 0)
-            @ np.kron(Hadamard() @ Sgate().conj().T, Hadamard() @ Sgate().conj().T),
-        ),
+        np.eye(4),
+        Cnot(1, 0)
+        @ np.kron(Hadamard() @ Sgate().conj().T, Hadamard() @ Sgate().conj().T),
     )
     return [
         ZIII,

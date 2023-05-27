@@ -20,6 +20,7 @@ for i, v in enumerate(tqdm(v_values_an)):
     eigvals_an[i], eig_vecs = eig_vals[eig_perm], eig_vecs[:, eig_perm]
 
 circuits = prep_circuit_lipkin_J2()
+print(circuits)
 # fig, axs = plt.subplots(1, 1, figsize=(8, 8))
 # for i in range(len(eigvals_an[0])):
 #     axs.plot(v_values_an, eigvals_an[:, i], label=f"$E_{i}$")
