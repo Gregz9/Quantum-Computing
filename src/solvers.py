@@ -271,6 +271,34 @@ def ansatz_2qubit(
     return init_state
 
 
+def ansatz_4qubit(angles: np.ndarray):
+    """
+    We assume that the array of angles is organized into batches, which here
+    have the shape an input array of a neural network would have. Meaning
+    m rows indicating m data samples, with n features, here indicating n angles.
+    """
+    qubits4 = np.kron(
+        state(alpha=1.0),
+        np.kron(state(alpha=1.0), np.kron(state(alpha=1.0), state(alpha=1.0))),
+    )
+    rots = np.zeros((angles.shape[0], angles.shape[1] // 2, 2, 2))
+    for i in range(angles.shape[0]):
+        for j in range(0, angles.shape[1] - 1, 2):
+            theta, phi = angles[i, j], angles[i, j + 1]
+            Rx = np.cos(theta * 0.5) * Identity() - 1j * np.sin(theta * 0.5) * _PAULI_X
+            Ry = np.cos(phi * 0.5) * Identity() - 1j * np.sin(phi * 0.5) * _PAULI_Y
+            rots[i, j - (j // 2)] = Ry @ Rx
+
+    for r in range(rots.shape[0]):
+        rot = np.kron(rots[r, 0], np.kron(rots[r, 1], np.kron(rots[r, 2], rots[r, 3])))
+        state4 = rot @ qubits4
+        state4 = np.kron(np.eye(2), np.kron(np.eye(2), Cnot(1, 0))) @ state4
+        state4 = np.kron(np.eye(2), np.kron(Cnot(1, 0), np.eye(2))) @ state4
+        state4 = np.kron(Cnot(1, 0), np.eye(4)) @ state4
+
+    return state4
+
+
 def measure_energy_J1(
     angles=np.array([np.pi / 2, np.pi / 2, np.pi / 2, np.pi / 2]), v=1.0, shots=1
 ):
@@ -459,6 +487,11 @@ def measure_energy_2q(
 
     return coeffs[0] + np.sum(consts * exp_vals) / shots
 
+def measure_energy_mul(angles, num_shots, v=1.0, w=0.0):
+    gates = prep_circuit_lipkin_J2()
+    state4 = ansatz_4qubit(angles)
+    measurements = np.zeros((len(gates), num_shots))
+    
 
 def chose_measurement(length, J=0):
     if length == 2 and J == 0:
@@ -585,6 +618,10 @@ def VQE_2qubit_momentum(eta, mnt, epochs, num_shots, init_angles, lmbd):
             break
 
     return angles, epoch, energy, delta_energy
+
+def VQE_batches(eta, epochs, num_shots, init_angles, lmbd):
+    angles = init_angles
+    measure_energy = choose_measurement
 
 
 def calc_grad(angles, ind, lmbd, num_shots, J=0):

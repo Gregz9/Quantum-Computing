@@ -30,3 +30,7 @@ for i, v in enumerate(tqdm(v_values_an)):
 # In order to be able to perform the measurement in the Z basis, we will need to
 # rotate our measurement basis into the ZIII basis. In order to do so, we are going
 # to use the approach presented by Robert Hundt in his book on Quantum computing.
+
+# Proceeding from here, we shall prepare an 4 qubit ansatz and use it with our VQE
+# algorithm to solve for the lowest eigenvalue of the the lipkin system with a spin og
+# J=2, indicating four fermions.
