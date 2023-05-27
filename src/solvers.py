@@ -289,10 +289,12 @@ def ansatz_4qubit(angles: np.ndarray):
             Rx = np.cos(theta * 0.5) * Identity() - 1j * np.sin(theta * 0.5) * PauliX()
             Ry = np.cos(phi * 0.5) * Identity() - 1j * np.sin(phi * 0.5) * PauliY()
             # rots[i, j - (j // 2)] = Ry @ Rx
-            rots.append(Ry@Rx)
+            rots.append(Ry @ Rx)
     rots2 = np.stack(rots)
     for r in range(0, len(rots), 4):
-        rot = np.kron(rots2[r], np.kron(rots2[r + 1], np.kron(rots2[r + 2], rots2[r + 3])))
+        rot = np.kron(
+            rots2[r], np.kron(rots2[r + 1], np.kron(rots2[r + 2], rots2[r + 3]))
+        )
         state4 = rot @ qubits4
         state4 = np.kron(np.eye(2), np.kron(np.eye(2), Cnot(1, 0))) @ state4
         state4 = np.kron(np.eye(2), np.kron(Cnot(1, 0), np.eye(2))) @ state4
@@ -489,27 +491,29 @@ def measure_energy_2q(
 
     return coeffs[0] + np.sum(consts * exp_vals) / shots
 
-def measure_energy_mul(angles, num_shots, v=1.0, w=0.0):
+
+def measure_energy_mul(angles, v, num_shots, w=0.0):
     gates = prep_circuit_lipkin_J2()
     state4 = ansatz_4qubit(angles)
     measurements = np.zeros((len(gates), num_shots))
-    for i, op in enumerate(gates): 
-        state4 = op@state4
+    for i, op in enumerate(gates):
+        state4 = op @ state4
         post_state, measurement, counts, obs_probs = measure(state4, num_shots)
         measurements[i] = measurement
-    
+
     exps = np.zeros(len(measurements))
-    consts = np.concatenate((0.5*np.ones(4), -0.5*v*np.ones(6),0.5*v*np.ones(6)))
-    for i in range(len(exp_vals)):
+    consts = np.concatenate(
+        (0.5 * np.ones(4), -0.5 * v * np.ones(6), 0.5 * v * np.ones(6))
+    )
+    for i in range(len(exps)):
         counts = [len(np.where(measurements[i] == j)[0]) for j in range(16)]
         for out, count in enumerate(counts):
-            if out <= 7: 
+            if out <= 7:
                 exps[i] += count
-            elif out > 7: 
-                exps[i] -= count 
-    return np.sum(consts*exps)/num_shots
-    
-    
+            elif out > 7:
+                exps[i] -= count
+    return np.sum(consts * exps) / num_shots
+
 
 def chose_measurement(length, J=0):
     if length == 2 and J == 0:
@@ -520,6 +524,8 @@ def chose_measurement(length, J=0):
         measurement_operation = measure_energy_2q
     elif length == 4 and J > 0:
         measurement_operation = measure_energy_J1
+    elif J > 1: 
+        measurement_operation = measure_energy_mul
 
     return measurement_operation
 
@@ -637,9 +643,32 @@ def VQE_2qubit_momentum(eta, mnt, epochs, num_shots, init_angles, lmbd):
 
     return angles, epoch, energy, delta_energy
 
-def VQE_batches(eta, epochs, num_shots, init_angles, lmbd):
-    angles = init_angles
-    measure_energy = choose_measurement
+
+def VQE_ADAM_batch(eta, beta1, beta2, epochs, b_size, num_shots, init_angles, v, J=2):
+    """
+    This version the VQE algorithm requires the user to use a larger 
+    number of angles, so that we can create batches. Preferably, the number of different 
+    sets of angles has to be larger than or at least equal to 5.
+    """
+    angles = init_angles.copy()
+    batch_angles = [angels[i:i+b_size] for i in range((angles.shape[0]//b_size)*(b_size-1))]
+    batch_angles.append(angels[len(batch_angles)-1:])
+    num_batches = (angles.shape[0]/b_size)
+    measure_energy = choose_measurement(len(init_angles), J)
+    energy = measure_energy(angles, v, num_shots)
+    for epoch in range(epochs):
+        grad = np.zeros((batch_angles.shape))
+        for i in range(num_batches):
+            angles_temp = angles.copy()
+            grad[i] = calc_grad(angles_temp, i, v, num_shots, J)
+        angles -= eta * grad
+        new_energy = measure_energy(angles, v, num_shots)
+        delta_energy = np.abs(new_energy - energy)
+        if delta_energy < 1e-10:
+            break
+
+        energy = new_energy
+    return angles, epoch, energy, delta_energy
 
 
 def calc_grad(angles, ind, lmbd, num_shots, J=0):
