@@ -281,16 +281,18 @@ def ansatz_4qubit(angles: np.ndarray):
         state(alpha=1.0),
         np.kron(state(alpha=1.0), np.kron(state(alpha=1.0), state(alpha=1.0))),
     )
-    rots = np.zeros((angles.shape[0], angles.shape[1] // 2, 2, 2))
+    # rots = np.zeros((angles.shape[0], angles.shape[1] // 2, 2, 2))
+    rots = []
     for i in range(angles.shape[0]):
         for j in range(0, angles.shape[1] - 1, 2):
             theta, phi = angles[i, j], angles[i, j + 1]
-            Rx = np.cos(theta * 0.5) * Identity() - 1j * np.sin(theta * 0.5) * _PAULI_X
-            Ry = np.cos(phi * 0.5) * Identity() - 1j * np.sin(phi * 0.5) * _PAULI_Y
-            rots[i, j - (j // 2)] = Ry @ Rx
-
-    for r in range(rots.shape[0]):
-        rot = np.kron(rots[r, 0], np.kron(rots[r, 1], np.kron(rots[r, 2], rots[r, 3])))
+            Rx = np.cos(theta * 0.5) * Identity() - 1j * np.sin(theta * 0.5) * PauliX()
+            Ry = np.cos(phi * 0.5) * Identity() - 1j * np.sin(phi * 0.5) * PauliY()
+            # rots[i, j - (j // 2)] = Ry @ Rx
+            rots.append(Ry@Rx)
+    rots2 = np.stack(rots)
+    for r in range(0, len(rots), 4):
+        rot = np.kron(rots2[r], np.kron(rots2[r + 1], np.kron(rots2[r + 2], rots2[r + 3])))
         state4 = rot @ qubits4
         state4 = np.kron(np.eye(2), np.kron(np.eye(2), Cnot(1, 0))) @ state4
         state4 = np.kron(np.eye(2), np.kron(Cnot(1, 0), np.eye(2))) @ state4
@@ -491,6 +493,22 @@ def measure_energy_mul(angles, num_shots, v=1.0, w=0.0):
     gates = prep_circuit_lipkin_J2()
     state4 = ansatz_4qubit(angles)
     measurements = np.zeros((len(gates), num_shots))
+    for i, op in enumerate(gates): 
+        state4 = op@state4
+        post_state, measurement, counts, obs_probs = measure(state4, num_shots)
+        measurements[i] = measurement
+    
+    exps = np.zeros(len(measurements))
+    consts = np.concatenate((0.5*np.ones(4), -0.5*v*np.ones(6),0.5*v*np.ones(6)))
+    for i in range(len(exp_vals)):
+        counts = [len(np.where(measurements[i] == j)[0]) for j in range(16)]
+        for out, count in enumerate(counts):
+            if out <= 7: 
+                exps[i] += count
+            elif out > 7: 
+                exps[i] -= count 
+    return np.sum(consts*exps)/num_shots
+    
     
 
 def chose_measurement(length, J=0):
