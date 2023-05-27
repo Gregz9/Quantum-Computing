@@ -651,23 +651,28 @@ def VQE_ADAM_batch(eta, beta1, beta2, epochs, b_size, num_shots, init_angles, v,
     sets of angles has to be larger than or at least equal to 5.
     """
     angles = init_angles.copy()
-    batch_angles = [angels[i:i+b_size] for i in range((angles.shape[0]//b_size)*(b_size-1))]
-    batch_angles.append(angels[len(batch_angles)-1:])
-    num_batches = (angles.shape[0]/b_size)
-    measure_energy = choose_measurement(len(init_angles), J)
+    batch_angles = [angles[i:i+b_size] for i in range((angles.shape[0]//b_size)*(b_size-1))]
+    batch_angles.append(angles[len(batch_angles)-1:])
+    num_batches = int(angles.shape[0]/b_size)
+    measure_energy = chose_measurement(len(init_angles), J)
     energy = measure_energy(angles, v, num_shots)
+    t = 0
     for epoch in range(epochs):
-        grad = np.zeros((batch_angles.shape))
+        m = 0.0
+        v = 0.0
+        t += 1
+        grad = np.zeros(len(batch_angles))
         for i in range(num_batches):
             angles_temp = angles.copy()
-            grad[i] = calc_grad(angles_temp, i, v, num_shots, J)
-        angles -= eta * grad
-        new_energy = measure_energy(angles, v, num_shots)
-        delta_energy = np.abs(new_energy - energy)
-        if delta_energy < 1e-10:
-            break
+            grad[i] = calc_grad(angles_temp, i, v, num_shots, J)/b_size
+            angles -= eta * grad
+            new_energy = measure_energy(angles, v, num_shots)
+            delta_energy = np.abs(new_energy - energy)
+            if delta_energy < 1e-10:
+                break
 
-        energy = new_energy
+            energy = new_energy
+
     return angles, epoch, energy, delta_energy
 
 
