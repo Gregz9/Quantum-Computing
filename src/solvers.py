@@ -181,16 +181,6 @@ def normalize(x):
     return fac, x_n
 
 
-def power_iter(mat, iters=100):
-    x = [1, 1]
-    y = [1, 1]
-    for i in range(iters):
-        x = np.dot(mat, x)
-        lambda_1, x = normalize(x)
-
-    print("Eigenvalue:", lambda_1)
-    print("Eigenvector:", x)
-
 
 def power_iteration(a, num_iterations, seed=11337) -> (np.ndarray, np.ndarray):
     np.random.seed(seed)
@@ -625,28 +615,6 @@ def VQE_Adam(eta, beta1, beta2, epochs, num_shots, init_angles, lmbd, J=0):
         if delta_energy < 1e-7:
             break
     return angles, epoch, energy
-
-
-def VQE_2qubit_momentum(eta, mnt, epochs, num_shots, init_angles, lmbd):
-    angles = init_angles
-    energy = measure_energy_2q(init_angles, lmbd, num_shots)
-    change = np.zeros((angles.shape))
-    for epoch in range(epochs):
-        grad = np.zeros((angles.shape))
-        for i in range(angles.shape[0]):
-            angles_temp = angles.copy()
-            grad[i] = calc_grad(angles_temp, i, lmbd, num_shots)
-        new_change = eta * grad + mnt * change
-        angles -= new_change
-        change = new_change
-        new_energy = measure_energy_2q(angles, lmbd, num_shots)
-        delta_energy = np.abs(new_energy - energy)
-        energy = new_energy
-        if delta_energy < 1e-7:
-            # return angles, epoch, energy, delta_energy
-            break
-
-    return angles, epoch, energy, delta_energy
 
 
 def calc_grad(angles, ind, lmbd, num_shots, J=0):
