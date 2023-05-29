@@ -53,20 +53,27 @@ def get_gradient(angles, v, number_shots, unitaries):
 unitaries = prep_circuit_lipkin_J2()
 from scipy.optimize import minimize
 
-number_shots = 1000
+# number_shots = 1000
 v_vals = np.array([1.0])  # only 2.0
-# target = eigvecs[:, 0] # ground state
-min_energy_scipy = np.zeros(len(v_vals))
-for index, v in enumerate(tqdm(v_vals)):
-    angles_start = np.random.uniform(low=0, high=2 * np.pi, size=5 * 8)
-    res = minimize(
-        fun=measure_energy_mul,
-        jac=get_gradient,
-        x0=angles_start,
-        args=(v, number_shots, unitaries),
-        method="BFGS",
-        options={"maxiter": 10000},
-        tol=1e-11,
-    )
-    min_energy_scipy[index] = res.fun
-    print(res)
+# # target = eigvecs[:, 0] # ground state
+# min_energy_scipy = np.zeros(len(v_vals))
+# for index, v in enumerate(tqdm(v_vals)):
+#     angles_start = np.random.uniform(low=0, high=2 * np.pi, size=5 * 8)
+#     res = minimize(
+#         fun=measure_energy_mul,
+#         jac=get_gradient,
+#         x0=angles_start,
+#         args=(v, number_shots, unitaries),
+#         method="BFGS",
+#         options={"maxiter": 10000},
+#         tol=1e-11,
+#     )
+#     min_energy_scipy[index] = res.fun
+#     print(res.fun)
+
+
+ener = VQE_scipy(
+    measure_energy_mul, v_vals, 5 * 8, 1000, unitaries, 0.0, 2 * np.pi, "BFGS"
+)
+
+print(ener)

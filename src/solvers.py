@@ -3,6 +3,7 @@ import numpy as np
 import math
 import cmath
 from typing import Iterable, List, Tuple
+from scipy.optimize import minimize
 from src.ops import *
 from tqdm import tqdm
 
@@ -282,16 +283,13 @@ def ansatz_4qubit(angles: np.ndarray):
         state(alpha=1.0),
         np.kron(state(alpha=1.0), np.kron(state(alpha=1.0), state(alpha=1.0))),
     )
-    # rots = np.zeros((angles.shape[0], angles.shape[1] // 2, 2, 2))
-    angles = np.array([angles[i:i+8] for i in range(0, len(angles), 8)])
-
+    angles = np.array([angles[i : i + 8] for i in range(0, len(angles), 8)])
     rots = []
     for i in range(angles.shape[0]):
         for j in range(0, angles.shape[1] - 1, 2):
             theta, phi = angles[i, j], angles[i, j + 1]
             Rx = np.cos(theta * 0.5) * Identity() - 1j * np.sin(theta * 0.5) * PauliX()
             Ry = np.cos(phi * 0.5) * Identity() - 1j * np.sin(phi * 0.5) * PauliY()
-            # rots[i, j - (j // 2)] = Ry @ Rx
             rots.append(Ry @ Rx)
     rots2 = np.stack(rots)
     for r in range(0, len(rots), 4):
@@ -350,7 +348,7 @@ def prep_circuit_lipkin_J2():
     )
 
     ZIZI = np.kron(Cnot(1, 0), np.eye(4)) @ np.kron(
-        I, np.kron(Swap() @np.kron(I, I), I)
+        I, np.kron(Swap() @ np.kron(I, I), I)
     )
     # Now we have to apply a set of gates to the other operators we have used to rewrite our hami-
     # ltonian matrix
@@ -500,7 +498,6 @@ def measure_energy_mul(angles, v, num_shots, w=0.0):
     state4 = ansatz_4qubit(angles)
     measurements = np.zeros((len(gates), num_shots))
     for i, op in enumerate(gates):
-
         state_meas = op @ state4
         post_state, measurement, counts, obs_probs = measure(state_meas, num_shots)
         measurements[i] = measurement
@@ -520,7 +517,7 @@ def measure_energy_mul(angles, v, num_shots, w=0.0):
 
 
 def chose_measurement(length, J=0):
-    if J == 2: 
+    if J == 2:
         measurement_operation = measure_energy_mul
     elif length == 2 and J == 0:
         measurement_operation = measure_energy_1q
@@ -570,12 +567,38 @@ def VQE(eta, epochs, num_shots, init_angles, lmbd, J=0):
         angles -= eta * grad
         new_energy = measure_energy(angles, lmbd, num_shots)
         delta_energy = np.abs(new_energy - energy)
-        if delta_energy < 1e-10:
-            break
+        # if delta_energy < 1e-10:
+        # break
 
         energy = new_energy
 
     return angles, epoch, energy, delta_energy
+
+
+def VQE_scipy(
+    measure_method,
+    inter_params,
+    angles_dims,
+    shots,
+    circuits,
+    low,
+    high,
+    method="Powell",
+):
+    min_energy = np.zeros(len(inter_params))
+    for i, v in enumerate(tqdm(inter_params)):
+        init_angles = np.random.uniform(low=low, high=high, size=angles_dims)
+        res = minimize(
+            fun=measure_method,
+            jac=get_gradient,
+            x0=init_angles,
+            args=(inter_params, shots, circuits),
+            method=method,
+            options={"maxiter": 10000},
+            tol=1e-11,
+        )
+        min_energy[i] = res.fun
+    return min_energy[i]
 
 
 def VQE_momentum(eta, mnt, epochs, num_shots, init_angles, lmbd, J=0):
@@ -656,19 +679,18 @@ def calc_grad(angles, ind, lmbd, num_shots, J=0):
     angles[ind] -= np.pi
     ener_min = measure_energy(angles, lmbd, num_shots)
     grad = (ener_pl - ener_min) / 2
+    return grad
 
 
-def get_gradient(angles, v, number_shots):
+def get_gradient(angles, v, number_shots, unitaries):
     grad = np.zeros(len(angles))
     for index, angle in enumerate(angles):
         tmp = angles.copy()
-        tmp[index] += np.pi/2
-        energy_plus = get_energy_test(tmp, v, number_shots)
+        tmp[index] += np.pi / 2
+        energy_plus = measure_energy_mul(tmp, v, number_shots)
         tmp[index] -= np.pi
-        energy_minus = get_energy_test(tmp, v, number_shots)
+        energy_minus = measure_energy_mul(tmp, v, number_shots)
         grad[index] = (energy_plus - energy_minus) / 2
-    return grad
-
     return grad
 
 
