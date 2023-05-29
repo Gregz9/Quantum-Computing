@@ -57,7 +57,7 @@ axs.legend()
 plt.show()
 
 fig, axs = plt.subplots(1, 1, figsize=(8, 8))
-for i in range(4):
+for i in range(1):
     axs.plot(lmbds, entropy[:, i], label=f"$H_{i}$")
 axs.set_xlabel(r"$\lambda$")
 axs.set_ylabel("Entropy")
