@@ -284,6 +284,7 @@ def ansatz_4qubit(angles: np.ndarray):
     )
     # rots = np.zeros((angles.shape[0], angles.shape[1] // 2, 2, 2))
     angles = np.array([angles[i:i+8] for i in range(0, len(angles), 8)])
+
     rots = []
     for i in range(angles.shape[0]):
         for j in range(0, angles.shape[1] - 1, 2):

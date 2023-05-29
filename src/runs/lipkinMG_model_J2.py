@@ -66,7 +66,7 @@ for index, v in enumerate(tqdm(v_vals)):
         args=(v, number_shots, unitaries),
         method="BFGS",
         options={"maxiter": 10000},
-        tol=1e-10,
+        tol=1e-11,
     )
     min_energy_scipy[index] = res.fun
     print(res)
