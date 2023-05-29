@@ -559,13 +559,13 @@ def VQE_scipy(
             fun=measure_method,
             jac=get_gradient,
             x0=init_angles,
-            args=(inter_params, shots, circuits),
+            args=(inter_params[i], shots, circuits),
             method=method,
             options={"maxiter": 10000},
             tol=1e-11,
         )
         min_energy[i] = res.fun
-    return min_energy[i]
+    return min_energy
 
 
 def VQE_momentum(eta, mnt, epochs, num_shots, init_angles, lmbd, J=0):
