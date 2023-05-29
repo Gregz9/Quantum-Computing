@@ -15,11 +15,8 @@
 
 \author{Grzegorz Kajda
     \affiliation{
-	Bachelor Student, Robotics and \\
-	Intelligent Systems\\ \\[-10pt]
-	Department of Informatics\\ \\[-10pt]
-	The faculty of Mathematics and \\
-	Natural Sciences\\ \\[-10pt]
+	Bachelor Student, Robotics and Intelligent Systems\\ \\[-10pt]
+	Department of Informatics The faculty of Mathematics and Natural Sciences\\ \\[-10pt]
     Email: grzegork@ifi.uio.no
     }
 }
@@ -34,8 +31,12 @@
 \begin{center}
 \section{Abstract}
 
-	We simulate the simplified Hamiltonian of the Lipkin-Meshov-Glikov model on a classical computer using the Variational Qunatum Eigensolver (VQE) algorithm. We start by investigating the outcomes resulting from the application of different single qubit quantum gates to qubit systems that are initially prepared in one of the basis states. Subsequently, we construct an entangler circuit and prepare one of the four bell pairs, upon which we apply the Hadamard and CNOT gates. With a fundamental comprehension of the foundational principles governing quantum systems, we contruct quantum circuits for generating ansatz states and meticulously develop the Variational Quantum Eigensolver (VQE) from ground up. We then apply the VQE to two synthetic quantum systems representing respectively one and two particle systems, and compare the performance of the VQE against numerical and analytical solvers. 
+We present a comprehensive simulation of the simplified Hamiltonian of the Lipkin-Meshov-Glikov (LMG) model on a classical computer, employing the Variational Quantum Eigensolver (VQE) algorithm. Initially, we explore the outcomes arising from the application of diverse single qubit quantum gates to one qubit systems prepared in basis states. Subsequently, an entangler circuit is constructed, and one of the four bell pairs is prepared, to which we apply the Hadamard and CNOT gates. Utilizing our newfound grasp of the foundational principles governing quantum systems, we construct quantum circuits for generating ansatz states and methodically develop the VQE from ground up.
+
+To assess the VQE's efficacy, we apply it to synthetic quantum systems representing single and two-particle systems, comparing its performance against numerical and analytical solvers. Transitioning to the Lipkin model, we leverage the properties of annihilation and creation operators to reformulate the Lipkin model's Hamiltonian first in terms of the quasi-spin operator and then Pauli operators. Employing this encoding scheme, we apply the VQE to systems with spin J=1 and 2, corresponding to Lipkin systems with two and four fermions, respectively. We compare the results against exact solutions obtained through standard diagonalization methods. This analysis provides valuable insights into the performance and accuracy of the VQE approach in tackling the Lipkin model's Hamiltonian.
+	
 \end{center}
+
 
 
 
