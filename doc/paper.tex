@@ -28,16 +28,20 @@
 
 \maketitle
 
-\begin{center}
 \section{Abstract}
 
 We present a comprehensive simulation of the simplified Hamiltonian of the Lipkin-Meshov-Glikov (LMG) model on a classical computer, employing the Variational Quantum Eigensolver (VQE) algorithm. Initially, we explore the outcomes arising from the application of diverse single qubit quantum gates to one qubit systems prepared in basis states. Subsequently, an entangler circuit is constructed, and one of the four bell pairs is prepared, to which we apply the Hadamard and CNOT gates. Utilizing our newfound grasp of the foundational principles governing quantum systems, we construct quantum circuits for generating ansatz states and methodically develop the VQE from ground up.
 
 To assess the VQE's efficacy, we apply it to synthetic quantum systems representing single and two-particle systems, comparing its performance against numerical and analytical solvers. Transitioning to the Lipkin model, we leverage the properties of annihilation and creation operators to reformulate the Lipkin model's Hamiltonian first in terms of the quasi-spin operator and then Pauli operators. Employing this encoding scheme, we apply the VQE to systems with spin J=1 and 2, corresponding to Lipkin systems with two and four fermions, respectively. We compare the results against exact solutions obtained through standard diagonalization methods. This analysis provides valuable insights into the performance and accuracy of the VQE approach in tackling the Lipkin model's Hamiltonian.
 	
-\end{center}
 
+\section{Introduction}
+Since its emergence in the early 1900s, quantum mechanics has sparked fervent discussions among physicists, engaging luminaries of modern physics like Einstein, Dirac, Bohr, and many others. The discovery of the quantum realm profoundly reshaped our perspective and understanding of the world around us, unveiling a whole new realm of fundamental principles governing the very building blocks of the universe. With the advent of computer systems in the latter half of the 20th century, and the introduction of the quantum Turing machine in 1980, the field of quantum computing was born, ultimately leading to the construction of the first quantum computer in 1998. Recently, due to technological advances and discovery of new quantum algorithms, we have been granted to an extent, the capability of simulating simple many-body quantum models using classical computers.
 
+An emerging research area in quantum computing focuses on the simulation of nuclear physics, leveraging the unique properties of quantum systems. Nuclear systems possess distinct characteristics that make them well-suited for exploration using quantum computers, providing insights into particle interactions. However, it is worth noting that quantum computers still face challenges, such as larger error rates compared to classical computers and vulnerability to noise, which can make working with them potentially difficult. Although the field of quantum computing is expanding rapidly, widespread accessibility remains limited, with companies like IBM offering only highly restricted access to their quantum technology. In light of these factors, we will employ a classical computer to simulate and analyze the simplified Lipkin-Meshkov-Glick model, showcasing the potential that quantum computing holds while acknowledging the current limitations in accessibility.
+
+To facilitate our simulations, we will begin by constructing quantum circuits using single-qubit quantum gates. This approach will allow us to implement the Variational Quantum Eigensolver (VQE) algorithm effectively, enabling us to approximate the ground state energy of the Lipkin model for systems composed of two and four particles. Apart from the introduction, this paper is organized into four sections. In Section Two, we will provide a comprehensive description of the theory and methods employed in this study. Following that, we will present our results, and finally, conclude with a summary of our findings.
+ 
 
 
 \end{document}
