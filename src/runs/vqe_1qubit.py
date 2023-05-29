@@ -57,25 +57,6 @@ for i, l in enumerate(lam):
     perm = eig_vals.argsort()
     system_ener_num[i] = eig_vals[perm]
 
-# Solving for the eigenvalalues using the VQE
-
-# num_shots = 1000
-# learning_rate = 0.3
-# max_epochs = 400
-# lmbds = np.linspace(0.0, 1.0, 40)
-# min_energy = np.zeros(len(lmbds))
-# epochs = np.zeros(len(lmbds))
-# for i, lmbd in enumerate(tqdm(lmbds)):
-#     init_angles = np.random.uniform(0, np.pi, size=2)
-#     angles, epochs[i], energy, delta_energy = VQE_1qubit(
-#         learning_rate, max_epochs, num_shots, init_angles, lmbd
-#     )
-#     if epochs[i] < (epochs[i - 1] - 5):
-#         init_angles = np.random.uniform(0, np.pi, size=2)
-#         angles, epochs[i], energy, delta_energy = VQE_1qubit(
-#             learning_rate, max_epochs, num_shots, init_angles, lmbd
-#         )
-#     min_energy[i] = measure_energy_1q(angles, lmbd, num_shots)
 
 num_shots = 1000
 learning_rate = 0.3
@@ -97,5 +78,4 @@ for i, lmbd in enumerate(tqdm(lmbds)):
     min_energy[i] = measure_energy_1q(angles, lmbd, num_shots)
 
 
-print(epochs)
 plot_vqe_energies(min_energy, system_ener_an, lmbds)

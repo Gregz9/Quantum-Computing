@@ -30,9 +30,27 @@ for i, lmbd in enumerate(lmbds):
     eigvecs = eigvecs[:, perm_an]
     entropy[i] = von_neumann(eigvals, eigvecs, 0)
 
+
+learning_rate = 0.2
+momentum = 0.2
+num_shots = 500
+max_epochs = 5000
+lmbds2 = np.linspace(0.0, 1.0, 11)
+min_energy = np.zeros(len(lmbds2))
+epochs = np.zeros(len(lmbds))
+for i, lmbd in enumerate(tqdm(lmbds2)):
+    angles = np.random.uniform(0.0, np.pi, size=4)
+    angles, epoch, min_energy[i], delta_energy = VQE_momentum(
+        learning_rate, momentum, max_epochs, num_shots, angles, lmbd
+    )
+# print(
+#     f"Lambda: {lmbds[i]}, Energy: {energy}, Epochs: {epoch}, Delta_energy : {delta_energy}"
+# )
+
 fig, axs = plt.subplots(1, 1, figsize=(8, 8))
 for i in range(4):
     axs.plot(lmbds, eigvals_an[:, i], label=f"$E_{i}$")
+axs.scatter(lmbds2, min_energy, label=f"$E_0")
 axs.set_xlabel(r"$\lambda$")
 axs.set_ylabel("Energy")
 axs.legend()
@@ -45,20 +63,3 @@ axs.set_xlabel(r"$\lambda$")
 axs.set_ylabel("Entropy")
 axs.legend()
 plt.show()
-
-# perm = eig_vals.argsort()
-# print(eig_vals[perm])
-#
-#
-# eig_vals = QR_solver(H)
-# perm = eig_vals.argsort()
-# print(eig_vals[perm])
-#
-# state = np.random.random(size=4)
-# print(
-#     np.kron(np.array([0.0, 1.0]), Identity())
-#     @ np.kron(np.array([0.0, 1.0]), Identity()).T
-# )
-# print(np.outer(state, state))
-# print(trace_first(state))
-# print(trace_second(state))

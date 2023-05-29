@@ -559,7 +559,7 @@ def VQE(eta, epochs, num_shots, init_angles, lmbd, J=0):
     measure_energy = chose_measurement(len(init_angles), J)
     angles = init_angles.copy()
     energy = measure_energy(angles, lmbd, num_shots)
-    for epoch in tqdm(range(epochs)):
+    for epoch in range(epochs):
         grad = np.zeros((angles.shape))
         for i in range(angles.shape[0]):
             angles_tmp = angles.copy()
@@ -606,7 +606,7 @@ def VQE_momentum(eta, mnt, epochs, num_shots, init_angles, lmbd, J=0):
     angles = init_angles
     energy = measure_energy(init_angles, lmbd, num_shots)
     change = np.zeros((angles.shape))
-    for epoch in tqdm(range(epochs)):
+    for epoch in range(epochs):
         grad = np.zeros((angles.shape))
         for i in range(angles.shape[0]):
             angles_temp = angles.copy()
