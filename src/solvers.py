@@ -4,6 +4,7 @@ import math
 import cmath
 from typing import Iterable, List, Tuple
 from src.ops import *
+from tqdm import tqdm
 
 _PAULI_X = PauliX()
 _PAULI_Y = PauliY()
@@ -277,11 +278,12 @@ def ansatz_4qubit(angles: np.ndarray):
     have the shape an input array of a neural network would have. Meaning
     m rows indicating m data samples, with n features, here indicating n angles.
     """
-    qubits4 = np.kron(
+    state4 = np.kron(
         state(alpha=1.0),
         np.kron(state(alpha=1.0), np.kron(state(alpha=1.0), state(alpha=1.0))),
     )
     # rots = np.zeros((angles.shape[0], angles.shape[1] // 2, 2, 2))
+    angles = np.array([angles[i:i+8] for i in range(0, len(angles), 8)])
     rots = []
     for i in range(angles.shape[0]):
         for j in range(0, angles.shape[1] - 1, 2):
@@ -295,7 +297,7 @@ def ansatz_4qubit(angles: np.ndarray):
         rot = np.kron(
             rots2[r], np.kron(rots2[r + 1], np.kron(rots2[r + 2], rots2[r + 3]))
         )
-        state4 = rot @ qubits4
+        state4 = rot @ state4
         state4 = np.kron(np.eye(2), np.kron(np.eye(2), Cnot(1, 0))) @ state4
         state4 = np.kron(np.eye(2), np.kron(Cnot(1, 0), np.eye(2))) @ state4
         state4 = np.kron(Cnot(1, 0), np.eye(4)) @ state4
@@ -347,7 +349,7 @@ def prep_circuit_lipkin_J2():
     )
 
     ZIZI = np.kron(Cnot(1, 0), np.eye(4)) @ np.kron(
-        I, np.kron(np.kron(I, I) @ Swap(), I)
+        I, np.kron(Swap() @np.kron(I, I), I)
     )
     # Now we have to apply a set of gates to the other operators we have used to rewrite our hami-
     # ltonian matrix
@@ -371,7 +373,7 @@ def prep_circuit_lipkin_J2():
             np.kron(Hadamard(), np.eye(2)) @ Swap(),
         )
     )
-    IIXX = ZIZI @ np.kron(I, np.kron(I, Cnot(1, 0) @ np.kron(Hadamard(), Hadamard())))
+    IIXX = IIZI @ np.kron(I, np.kron(I, Cnot(1, 0) @ np.kron(Hadamard(), Hadamard())))
 
     # Rotating the Y-basis
     YYII = np.kron(
@@ -396,7 +398,7 @@ def prep_circuit_lipkin_J2():
         np.kron(Hadamard() @ Sgate().conj().T, np.eye(2)) @ Swap(),
         np.kron(Hadamard() @ Sgate().conj().T, np.eye(2)) @ Swap(),
     )
-    IIYY = ZIZI @ np.kron(
+    IIYY = IIZI @ np.kron(
         np.eye(4),
         Cnot(1, 0)
         @ np.kron(Hadamard() @ Sgate().conj().T, Hadamard() @ Sgate().conj().T),
@@ -497,8 +499,9 @@ def measure_energy_mul(angles, v, num_shots, w=0.0):
     state4 = ansatz_4qubit(angles)
     measurements = np.zeros((len(gates), num_shots))
     for i, op in enumerate(gates):
-        state4 = op @ state4
-        post_state, measurement, counts, obs_probs = measure(state4, num_shots)
+
+        state_meas = op @ state4
+        post_state, measurement, counts, obs_probs = measure(state_meas, num_shots)
         measurements[i] = measurement
 
     exps = np.zeros(len(measurements))
@@ -516,7 +519,9 @@ def measure_energy_mul(angles, v, num_shots, w=0.0):
 
 
 def chose_measurement(length, J=0):
-    if length == 2 and J == 0:
+    if J == 2: 
+        measurement_operation = measure_energy_mul
+    elif length == 2 and J == 0:
         measurement_operation = measure_energy_1q
     elif length == 2 and J > 0:
         measurement_operation = measure_energy_J1
@@ -524,8 +529,6 @@ def chose_measurement(length, J=0):
         measurement_operation = measure_energy_2q
     elif length == 4 and J > 0:
         measurement_operation = measure_energy_J1
-    elif J > 1: 
-        measurement_operation = measure_energy_mul
 
     return measurement_operation
 
@@ -558,7 +561,7 @@ def VQE(eta, epochs, num_shots, init_angles, lmbd, J=0):
     measure_energy = chose_measurement(len(init_angles), J)
     angles = init_angles.copy()
     energy = measure_energy(angles, lmbd, num_shots)
-    for epoch in range(epochs):
+    for epoch in tqdm(range(epochs)):
         grad = np.zeros((angles.shape))
         for i in range(angles.shape[0]):
             angles_tmp = angles.copy()
@@ -579,7 +582,7 @@ def VQE_momentum(eta, mnt, epochs, num_shots, init_angles, lmbd, J=0):
     angles = init_angles
     energy = measure_energy(init_angles, lmbd, num_shots)
     change = np.zeros((angles.shape))
-    for epoch in range(epochs):
+    for epoch in tqdm(range(epochs)):
         grad = np.zeros((angles.shape))
         for i in range(angles.shape[0]):
             angles_temp = angles.copy()
@@ -596,20 +599,21 @@ def VQE_momentum(eta, mnt, epochs, num_shots, init_angles, lmbd, J=0):
     return angles, epoch, energy, delta_energy
 
 
-def VQE_Adam(eta, beta1, beta2, t, epochs, num_shots, init_angles, lmbd, J=0):
-    measure_enerfy = chose_measurement(len(init_angles), J)
+def VQE_Adam(eta, beta1, beta2, epochs, num_shots, init_angles, lmbd, J=0):
+    measure_energy = chose_measurement(len(init_angles), J)
     angles = init_angles
     energy = measure_energy(init_angles, lmbd, num_shots)
     t = 0
-    for epoch in range(epochs):
+    for epoch in tqdm(range(epochs)):
         m = 0.0
         v = 0.0
         t += 1
+        grad = np.zeros((angles.shape))
         for i in range(angles.shape[0]):
             angles_temp = angles.copy()
             grad[i] = calc_grad(angles_temp, i, lmbd, num_shots, J)
-        m = beta1 * first + (1 - beta1) * grad
-        v = beta2 * second + (1 - beta2) * grad * grad
+        m = beta1 * m + (1 - beta1) * grad
+        v = beta2 * v + (1 - beta2) * grad * grad
         m_term = m / (1.0 - beta1**t)
         v_term = v / (1.0 - beta2**t)
         angles -= eta * m_term / (np.sqrt(v_term) + 1e-7)
@@ -644,38 +648,6 @@ def VQE_2qubit_momentum(eta, mnt, epochs, num_shots, init_angles, lmbd):
     return angles, epoch, energy, delta_energy
 
 
-def VQE_ADAM_batch(eta, beta1, beta2, epochs, b_size, num_shots, init_angles, v, J=2):
-    """
-    This version the VQE algorithm requires the user to use a larger 
-    number of angles, so that we can create batches. Preferably, the number of different 
-    sets of angles has to be larger than or at least equal to 5.
-    """
-    angles = init_angles.copy()
-    batch_angles = [angles[i:i+b_size] for i in range((angles.shape[0]//b_size)*(b_size-1))]
-    batch_angles.append(angles[len(batch_angles)-1:])
-    num_batches = int(angles.shape[0]/b_size)
-    measure_energy = chose_measurement(len(init_angles), J)
-    energy = measure_energy(angles, v, num_shots)
-    t = 0
-    for epoch in range(epochs):
-        m = 0.0
-        v = 0.0
-        t += 1
-        grad = np.zeros(len(batch_angles))
-        for i in range(num_batches):
-            angles_temp = angles.copy()
-            grad[i] = calc_grad(angles_temp, i, v, num_shots, J)/b_size
-            angles -= eta * grad
-            new_energy = measure_energy(angles, v, num_shots)
-            delta_energy = np.abs(new_energy - energy)
-            if delta_energy < 1e-10:
-                break
-
-            energy = new_energy
-
-    return angles, epoch, energy, delta_energy
-
-
 def calc_grad(angles, ind, lmbd, num_shots, J=0):
     measure_energy = chose_measurement(angles.shape[0], J)
     angles[ind] += np.pi / 2
@@ -683,6 +655,19 @@ def calc_grad(angles, ind, lmbd, num_shots, J=0):
     angles[ind] -= np.pi
     ener_min = measure_energy(angles, lmbd, num_shots)
     grad = (ener_pl - ener_min) / 2
+
+
+def get_gradient(angles, v, number_shots):
+    grad = np.zeros(len(angles))
+    for index, angle in enumerate(angles):
+        tmp = angles.copy()
+        tmp[index] += np.pi/2
+        energy_plus = get_energy_test(tmp, v, number_shots)
+        tmp[index] -= np.pi
+        energy_minus = get_energy_test(tmp, v, number_shots)
+        grad[index] = (energy_plus - energy_minus) / 2
+    return grad
+
     return grad
 
 
