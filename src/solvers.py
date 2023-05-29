@@ -667,17 +667,3 @@ def get_energy(H, theta, phi, collapse_to=0):
     return basis.conj().T @ H @ basis
 
 
-def VQE_1q(H, epochs=100, eta=0.1):
-    theta = 2 * np.pi * np.random.rand()
-    phi = 2 * np.pi * np.random.rand()
-    pi2 = 0.5 * np.pi
-    for epoch in range(epochs):
-        theta_grad = 0.5 * (
-            get_energy(H, theta + pi2, phi) - get_energy(H, theta - pi2, phi)
-        )
-        phi_grad = 0.5 * (
-            get_energy(H, theta, phi + pi2) - get_energy(H, theta - pi2, phi)
-        )
-        theta -= eta * theta_grad
-        phi -= eta * phi_grad
-    print(abs(get_energy(H, theta, phi)))
