@@ -151,7 +151,7 @@ where each of the the $\hat{H}_{i}$ can be written in terms of the creation and 
 \hat{H}_2 = \frac{1}{2}W\sum_{\sigma,p,p'} a_{\sigma,p}^{\dagger}a_{-\sigma,p'}^{\dagger}a_{\sigma,p'}a_{-\sigma,p}.
 \end{equation}
 
-The role of creation and annihilation operators in a quantum mechanical many-body model is to highten and lower the number of particles in a given substate by one, respectively. For instance, applying an creation operator to the upper energy level of \textit{Fig.1} would increase the number of fermions by one in that energy level. A useful property of these operators allows us to use them to express the Hamiltonian of the Lipkin model in terms of the so-called \textit{quasi-spin operators} and \textit{number operator}. Defining he quasi-spin operators as 
+Where \textit{V} and \textit{W} are constants, $\hat{H}_1$ represents the interaction that can move pairs of fermions between the energy levels, while $\hat{H}_2$ corresponds to the spin-exchange term. When it comes to creation and annihilation operators, their role in the context of a quantum mechanical many-body model, is the manipulation of the number of particles in specific substates. For instance, applying a creation operator to the upper energy level in Fig. 1 would increase the number of fermions in that energy level by one. One notable property of these operators is their ability to express the Hamiltonian of the Lipkin model in terms of the so-called \textit{quasi-spin operators} and the \textit{number operator}. Defining the quasi-spin operators in terms of creation and annihilation operators leads to the following equivalences 
 
 \begin{equation}
 \hat{J}_{+} = \sum_{p} a_{p+}^{\dagger}a_{p-},
@@ -169,23 +169,13 @@ The role of creation and annihilation operators in a quantum mechanical many-bod
 \hat{J}^{2} = J_{+}J_{-} + J_{z}^{2} - J_{z}.
 \end{equation}
 
+which when substituted into the equation for the Hamiltonian $\hat{H}$ give us
 
+\begin{equation}
+\hat{H} = \epsilon\hat{J}_z - \frac{1}{2}V(\hat{J}_+\hat{J}_+ + \hat{J}_-\hat{J}_-) + \frac{1}{2}W\left( -N + J_+ J_- + J_- J_+ \right).
+\end{equation}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
-
+where the quasi-spin operators obey the commutation relations of angular momentum, thus allwowing us to use them to rewrite the Hamiltonian of the lipkin model (for full proof of the commutators refer to [Fys5429, lecture notes week 8]). 
 
 \end{document}
 
