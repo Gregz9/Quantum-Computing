@@ -12,6 +12,8 @@
 \usepackage{float}
 \usepackage{xcolor}
 \usepackage{xurl}
+\usepackage{tikz}
+\usepackage{caption}
 
 \author{Grzegorz Kajda
     \affiliation{
@@ -40,14 +42,16 @@ Since its emergence in the early 1900s, quantum mechanics has sparked fervent di
 
 An emerging research area in quantum computing focuses on the simulation of nuclear physics, leveraging the unique properties of quantum systems. Nuclear systems possess distinct characteristics that make them well-suited for exploration using quantum computers, providing insights into particle interactions. However, it is worth noting that quantum computers still face challenges, such as larger error rates compared to classical computers and vulnerability to noise, which can make working with them potentially difficult. Although the field of quantum computing is expanding rapidly, widespread accessibility remains limited, with companies like IBM offering only highly restricted access to their quantum technology. In light of these factors, we will employ a classical computer to simulate and analyze the simplified Lipkin-Meshkov-Glick model, showcasing the potential that quantum computing holds while acknowledging the current limitations in accessibility.
 
-To facilitate our simulations, we will begin by constructing quantum circuits using single-qubit quantum gates. This approach will allow us to implement the Variational Quantum Eigensolver (VQE) algorithm effectively, enabling us to approximate the ground state energy of the Lipkin model for systems composed of two and four particles. Apart from the introduction, this paper is organized into four sections. In Section Two, we will provide a comprehensive description of the theory and methods employed in this study. Following that, we will present our results, and finally, conclude with a summary of our findings.
+To facilitate our simulations, we will begin by constructing quantum circuits using single-qubit quantum gates. This approach will allow us to implement the Variational Quantum Eigensolver (VQE) algorithm effectively, enabling us to approximate the ground state energy of the Lipkin model for systems composed of two and four particles.
+
+Apart from the introduction, this paper is organized into four sections. In Section Two, we will provide a comprehensive description of the theory and methods employed in this study. Following that, we will present our results, and finally, conclude with a summary of our findings.
  
- \section{Method}
+ \section{\textbf{Section II: Theory and Method \\}}
 
  \subsection{Quantum gates}
 The primary distinction between classical computers and their quantum counterparts lies in the nature of the data they process. In classical computing, the fundamental data unit is the binary digit, commonly known as a bit, which represents different voltage levels associated with low and high states. On the other hand, quantum computers utilize particles, such as atoms, as the information unitm leading to a fundamentally different approach to data handling. The unique properties of atoms and the underlying principles of quantum mechanics prevent us from treating them in the same manner as classical bits. For instance, in classical computing, logical gates like \textit{and}, \textit{or}, \textit{xor}, and \textit{nand} are commonly used for data processing, but these gates produce irreversible outcomes. However, on quantum computers, irreversible outcomes are generally not allowed, except in the case of measurement.
 
-In the realm of quantum computing, the fundamental data type is the \textit{qubit}, which represents the digital manifestation of the wave function for a quantum particle. The principles of quantum mechanics dictate that the evolution of a quantum system can be mathematically described using unitary operators. This implies that the operations applied to quantum systems are inherently reversible. Consequently, at any given point in time, a quantum system can be fully characterized by a set of linear unitary operators. As a result, data processing on a quantum computer necessitates the use of reversible operators, enabling the "uncomputation" of the outcomes produced by quantum gates. The most basic of these operators are typically represented using 2x2 matrices. While these 2x2 operators quantum gates operate on individual qubits, by utilizing the Kronecker product (tensor product), we can in theory construct gates for quantum systems composed of arbitrary number of qubits. In practice we will often find ourselves restricted to at most 8 or 10 qubits before the computational overhead becomes too high.
+On a quantum computer, the fundamental data type used for storing information is the \textit{qubit}, which represents the digital manifestation of the wave function for a quantum particle. The principles of quantum mechanics dictate that the evolution of a quantum system can be mathematically described using unitary operators. This implies that the operations applied to quantum systems are inherently reversible. Consequently, at any given point in time, a quantum system can be fully characterized by a set of linear unitary operators. As a result, data processing on a quantum computer necessitates the use of reversible operators, enabling the "uncomputation" of the outcomes produced by quantum gates. The most basic of these operators are typically represented using 2x2 matrices. While these 2x2 operators quantum gates operate on individual qubits, by utilizing the Kronecker product (tensor product), we can in theory construct gates for quantum systems composed of arbitrary number of qubits. In practice we will often find ourselves restricted to at most 8 or 10 qubits before the computational overhead becomes too high.
 
 The following are the basic quantum gates which we will utilize to contruct more complex gates and ciruits: 
 
@@ -100,13 +104,87 @@ The following are the basic quantum gates which we will utilize to contruct more
 		\end{pmatrix}.
 	\end{equation*}
 
-
 \end{enumerate}
 
-
 \subsection{Lipkin-Meshkov-Glick model}
+The Lipkin-Meshkov-Glick (LMG) model, often called Lipkin model, is a quantum model describing the collective beahvior of a large number of particles which was introduced in 1964 for the purpose of studying approximation methods used to solve many-body problems. Since its introuduction, it has become one of the standard benchmarks [Physical review C] for many-body methods in nuclear and particle physics. The model describes a system of N fermions (i.e. particles with half-integer spin values like electrons and quarks) which are distributed among two energy levels with quantum numbers $\sigma$ = ±1. The upper level has $2\sigma$ = +1 and energy $e_{1}$ = $e/2$, while the lower level has $2\sigma$ = -1 and energy $e_{2}$ = $e/2$. This can be visualized in the following way
+
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}
+	  % Draw the parallel lines
+	  \draw (0,0) -- (7,0);
+	  \draw (0,1) -- (7,1);
+	  
+	  % Draw the small circles on the lines
+	  \foreach \x in {2,3}
+	  {
+		\filldraw (\x,1) circle (3pt);
+
+	  }
+	  \foreach \x in {4,5}
+	  {
+		\filldraw (\x,0) circle (3pt);
+	  }
+	\end{tikzpicture}
+	\caption{Figure showing the distrubution of four fermions among two energy levels}
+\end{figure}
+
+The figure depicts two horizontal lines representing the mentioned distinct energy levels, while the dots on the lines represent four fermions that in this case are evenly distributed between these levels. Each fermion in the figure corresponds to its own substate, characterized by quantum numbers $p = 1, 2, 3, 4$. It is important to note that in the figure, each particle occupies its own unique state. This behavior is typical of fermions, which obey the \textit{Pauli exclusion principle} [Basdevant, p. 348], meaning that two independent fermions cannot occupy the same state at exactly the same time.
+
+Now the Lipkin model is described through its Hamiltonian given by 
+\begin{equation}
+\hat{H} = \hat{H}_{0} + \hat{H}_{1} + \hat{H}_{2}.
+\end{equation}
+
+where each of the the $\hat{H}_{i}$ can be written in terms of the creation and annihilation operators
+
+\begin{equation}
+\hat{H}_0 = \frac{1}{2}\varepsilon\sum_{\sigma,p}\sigma a_{\sigma,p}^{\dagger}a_{\sigma,p},
+\end{equation}
+
+\begin{equation}
+\hat{H}_1 = \frac{1}{2}V\sum_{\sigma,p,p'} a_{\sigma,p}^{\dagger}a_{\sigma,p'}^{\dagger}a_{-\sigma,p'}a_{-\sigma,p},
+\end{equation}
+
+\begin{equation}
+\hat{H}_2 = \frac{1}{2}W\sum_{\sigma,p,p'} a_{\sigma,p}^{\dagger}a_{-\sigma,p'}^{\dagger}a_{\sigma,p'}a_{-\sigma,p}.
+\end{equation}
+
+The role of creation and annihilation operators in a quantum mechanical many-body model is to highten and lower the number of particles in a given substate by one, respectively. For instance, applying an creation operator to the upper energy level of \textit{Fig.1} would increase the number of fermions by one in that energy level. A useful property of these operators allows us to use them to express the Hamiltonian of the Lipkin model in terms of the so-called \textit{quasi-spin operators} and \textit{number operator}. Defining he quasi-spin operators as 
+
+\begin{equation}
+\hat{J}_{+} = \sum_{p} a_{p+}^{\dagger}a_{p-},
+\end{equation}
+
+\begin{equation}
+\hat{J}_{-} = \sum_{p} a_{p-}^{\dagger}a_{p+},
+\end{equation}
+
+\begin{equation}
+\hat{J}_{z} = \frac{1}{2}\sum_{p\sigma} \sigma a_{p\sigma}^{\dagger}a_{p\sigma}, 
+\end{equation}
+
+\begin{equation}
+\hat{J}^{2} = J_{+}J_{-} + J_{z}^{2} - J_{z}.
+\end{equation}
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
 
 
 \end{document}
