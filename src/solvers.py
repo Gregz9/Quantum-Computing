@@ -531,29 +531,6 @@ def chose_measurement(length, J=0):
     return measurement_operation
 
 
-def VQE_1qubit(eta, epochs, num_shots, init_angles, lmbd):
-    angles = init_angles
-    energy = measure_energy_1q(angles, lmbd, num_shots)
-    for epoch in range(epochs):
-        grad = np.zeros((angles.shape))
-        for i in range(angles.shape[0]):
-            angles_tmp = angles.copy()
-            angles_tmp[i] += np.pi / 2
-            ener_pl = measure_energy_1q(angles_tmp, lmbd, num_shots)
-            angles_tmp[i] -= np.pi
-            ener_min = measure_energy_1q(angles_tmp, lmbd, num_shots)
-            grad[i] = (ener_pl - ener_min) / 2
-        angles -= eta * grad
-        new_energy = measure_energy_1q(angles, lmbd, num_shots)
-        delta_energy = np.abs(new_energy - energy)
-        if delta_energy < 1e-10:
-            break
-
-        energy = new_energy
-
-    return angles, epoch, energy, delta_energy
-
-
 # Generalized version of VQE
 def VQE(eta, epochs, num_shots, init_angles, lmbd, J=0):
     measure_energy = chose_measurement(len(init_angles), J)
