@@ -45,9 +45,70 @@ To facilitate our simulations, we will begin by constructing quantum circuits us
  \section{Method}
 
  \subsection{Quantum gates}
- The main difference between clasical computers and their quantum counterpart lays in the underlying data they process. While a classical computer operates on binary digits (bits), which represent low and high voltage levels, a qunatum computer operates directly on particles such as atoms. These leads to different ways of handling the data, as the properties of atoms and the physical theorems that describe their behavior do not allows us to process them in a way identical to how a classical computer processes bits
+The primary distinction between classical computers and their quantum counterparts lies in the nature of the data they process. In classical computing, the fundamental data unit is the binary digit, commonly known as a bit, which represents different voltage levels associated with low and high states. On the other hand, quantum computers utilize particles, such as atoms, as the information unitm leading to a fundamentally different approach to data handling. The unique properties of atoms and the underlying principles of quantum mechanics prevent us from treating them in the same manner as classical bits. For instance, in classical computing, logical gates like \textit{and}, \textit{or}, \textit{xor}, and \textit{nand} are commonly used for data processing, but these gates produce irreversible outcomes. However, on quantum computers, irreversible outcomes are generally not allowed, except in the case of measurement.
 
-On a classical machine, data is represented using classical bits and processed using logical gates such as \emph{and, or, xor} and \emph{nand}. On a quantum computer, data is represented using \emph{qubits} which are a digital representation of particles. The main difference between classical computers and quantum computers lays namely in what data each of these technological wonders operate on. T 
+In the realm of quantum computing, the fundamental data type is the \textit{qubit}, which represents the digital manifestation of the wave function for a quantum particle. The principles of quantum mechanics dictate that the evolution of a quantum system can be mathematically described using unitary operators. This implies that the operations applied to quantum systems are inherently reversible. Consequently, at any given point in time, a quantum system can be fully characterized by a set of linear unitary operators. As a result, data processing on a quantum computer necessitates the use of reversible operators, enabling the "uncomputation" of the outcomes produced by quantum gates. The most basic of these operators are typically represented using 2x2 matrices. While these 2x2 operators quantum gates operate on individual qubits, by utilizing the Kronecker product (tensor product), we can in theory construct gates for quantum systems composed of arbitrary number of qubits. In practice we will often find ourselves restricted to at most 8 or 10 qubits before the computational overhead becomes too high.
+
+The following are the basic quantum gates which we will utilize to contruct more complex gates and ciruits: 
+
+\begin{enumerate}
+	\item[\textbf{I}.] \textbf{Identity gate}
+		\begin{equation*}
+			I = \begin{pmatrix}
+			1 & 0 \\
+			0 & 1 \\
+		\end{pmatrix}.
+	\end{equation*}
+
+	\item[\textbf{II.}] \textbf{Pauli-X gate}
+		\begin{equation*}
+			X = \begin{pmatrix}
+			0 & 1 \\
+			1 & 0 \\
+		\end{pmatrix}.
+	\end{equation*}
+
+	\item[\textbf{III.}] \textbf{Pauli-Y gate}
+		\begin{equation*}
+			Y = \begin{pmatrix}
+			0 & -i \\
+			i & 0 \\
+		\end{pmatrix}.
+	\end{equation*}
+
+	\item[\textbf{IV.}] \textbf{Pauli-Z gate}
+		\begin{equation*}
+			Z = \begin{pmatrix}
+			1 & 0 \\
+			0 & -1 \\
+		\end{pmatrix}.
+	\end{equation*}
+
+	\item[\textbf{V.}] \textbf{Hadamard gate}
+		\begin{equation*}
+			H = \frac{1}{\sqrt{2}} \begin{pmatrix}
+			1 & 1 \\
+			1 & -1 \\
+		\end{pmatrix}.
+	\end{equation*}
+
+	\item[\textbf{VI.}] \textbf{Phase gate}
+		\begin{equation*}
+			S = \begin{pmatrix}
+			1 & 0 \\
+			0 & i \\
+		\end{pmatrix}.
+	\end{equation*}
+
+
+\end{enumerate}
+
+
+\subsection{Lipkin-Meshkov-Glick model}
+
+
 
 
 \end{document}
+
+
