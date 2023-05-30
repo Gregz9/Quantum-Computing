@@ -103,6 +103,14 @@ The following are the basic quantum gates which we will utilize to contruct more
 			0 & i \\
 		\end{pmatrix}.
 	\end{equation*}
+		For a single qubit, application of each of these matrices represents a rotation of the qubit on the \textit{Bloch sphere (Fig. 1)}. (For more details, take a look at [Hundt, p.56] or [Nielsen, p.19])
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.3\textwidth]{Bloch_sphere.svg.png}
+  \caption{Caption text describing the picture.}
+  \label{fig:example}
+\end{figure}
 
 \end{enumerate}
 
@@ -130,9 +138,9 @@ The Lipkin-Meshkov-Glick (LMG) model, often called Lipkin model, is a quantum mo
 	\caption{Figure showing the distrubution of four fermions among two energy levels}
 \end{figure}
 
-The figure depicts two horizontal lines representing the mentioned distinct energy levels, while the dots on the lines represent four fermions that in this case are evenly distributed between these levels. Each fermion in the figure corresponds to its own substate, characterized by quantum numbers $p = 1, 2, 3, 4$. It is important to note that in the figure, each particle occupies its own unique state. This behavior is typical of fermions, which obey the \textit{Pauli exclusion principle} [Basdevant, p. 348], meaning that two independent fermions cannot occupy the same state at exactly the same time.
+The figure depicts two horizontal lines representing the mentioned distinct energy levels, while the dots on the lines represent four fermions that in this case are evenly distributed between these levels. Each fermion in the figure corresponds to its own substate, characterized by quantum numbers $p = 1, 2, 3, 4$. It is important to note that in the figure, each particle occupies its own unique state. This behavior is typical of fermions, which obey the \textit{Pauli exclusion principle} [Basdevant, p. 348], meaning that two independent fermions cannot occupy the same state at exactly the same time (Do no dwelve on this too much, this is simply the nature of reality sorrounding us).
 
-Now the Lipkin model is described through its Hamiltonian given by 
+Now the Lipkin model is described through its Hamiltonian, a matrix correpsonds to the total energy of a physicial and is fundamental plays a fundamental role in the describing the evolution of a quantum system. Here, the Hamiltonian of the system is given by 
 \begin{equation}
 \hat{H} = \hat{H}_{0} + \hat{H}_{1} + \hat{H}_{2}.
 \end{equation}
@@ -151,7 +159,7 @@ where each of the the $\hat{H}_{i}$ can be written in terms of the creation and 
 \hat{H}_2 = \frac{1}{2}W\sum_{\sigma,p,p'} a_{\sigma,p}^{\dagger}a_{-\sigma,p'}^{\dagger}a_{\sigma,p'}a_{-\sigma,p}.
 \end{equation}
 
-Where \textit{V} and \textit{W} are constants, $\hat{H}_1$ represents the interaction that can move pairs of fermions between the energy levels, while $\hat{H}_2$ corresponds to the spin-exchange term. When it comes to creation and annihilation operators, their role in the context of a quantum mechanical many-body model, is the manipulation of the number of particles in specific substates. For instance, applying a creation operator to the upper energy level in Fig. 1 would increase the number of fermions in that energy level by one. One notable property of these operators is their ability to express the Hamiltonian of the Lipkin model in terms of the so-called \textit{quasi-spin operators} and the \textit{number operator}. Defining the quasi-spin operators in terms of creation and annihilation operators leads to the following equivalences 
+Where \textit{V} and \textit{W} are constants, $\hat{H}_1$ represents the interaction that can move pairs of fermions between the energy levels, while $\hat{H}_2$ corresponds to the spin-exchange term, scattering one particle up and one down. These operators are in turn expressed in term of creation and annihilation operators, whose role in the context of a quantum mechanical many-body model, is the manipulation of the number of particles in specific substates. For instance, applying a creation operator to the upper energy level in Fig. 1 would increase the number of fermions in that energy level by one. One notable property of these operators is their ability to express the Hamiltonian of the Lipkin model in terms of the so-called \textit{quasi-spin operators} and the \textit{number operator}, where the former display behavior analogous to that of spin operators. Defining the quasi-spin operators in terms of creation and annihilation operators leads to the following equivalences 
 
 \begin{equation}
 \hat{J}_{+} = \sum_{p} a_{p+}^{\dagger}a_{p-},
@@ -169,13 +177,47 @@ Where \textit{V} and \textit{W} are constants, $\hat{H}_1$ represents the intera
 \hat{J}^{2} = J_{+}J_{-} + J_{z}^{2} - J_{z}.
 \end{equation}
 
-which when substituted into the equation for the Hamiltonian $\hat{H}$ give us
+which when substituted into the equation for the Hamiltonian $\hat{H}$ , the equation for \textit{N=2} particles is given by
 
 \begin{equation}
 \hat{H} = \epsilon\hat{J}_z - \frac{1}{2}V(\hat{J}_+\hat{J}_+ + \hat{J}_-\hat{J}_-) + \frac{1}{2}W\left( -N + J_+ J_- + J_- J_+ \right).
 \end{equation}
 
-where the quasi-spin operators obey the commutation relations of angular momentum, thus allwowing us to use them to rewrite the Hamiltonian of the lipkin model (for full proof of the commutators refer to [Fys5429, lecture notes week 8]). 
+Since the quasi-spin operators exhibit behavior similar to regular spin operators, they follow the commutation relations of angular momentum (for a detailed proof, refer to [Fys5429, lecture notes week 8]). This property is of great importance because fermions, such as electrons, are particles with half-integer spin (1/2-spin). It means that a fermion possesses intrinsic spin on its own (independent of its motion) [Basdevant, p.275]. In the context of atomic systems, the energy eigenstates are intimately connected to spin [Nielsen, p.310]. Therefore, when describing a system composed of atomic particles, it is crucial to consider these internal degrees of freedom.
+
+By utilizing quasi-spin operators, we can account for these internal degrees of freedom and incorporate them into our calculations. This allows us to rewrite the Hamiltonian of the Lipkin model in a more convenient form. Consequently, we can express the Hamiltonian matrix in terms of the Pauli operators mentioned in the previous subsection. This transformation facilitates the analysis and study of the Lipkin model, providing insights into its energy levels and dynamics. Before proceeding however, we are going to simplify the Hamiltonian slightly more by setting the spin-exchange term equal to zero, resulting in a dimensionless Hamiltonian
+\begin{equation}
+\hat{H} = \epsilon\hat{J}_z - \frac{1}{2}V(\hat{J}_+\hat{J}_+ + \hat{J}_-\hat{J}_-).
+\end{equation}
+
+Having established the fundamental understanding of our problem and model, we move onto the encoding scheme we will apply to equation (10) for the case of the total spin \textit{J=1,2}, corresponding to situations when the model consists of \textit{N=2,4} particles.
+
+\subsection{Encoding in terms of Pauli matrices}
+As we happend to mention above, the quasi-spin operators in the expression for Hamiltonian of the Lipkin model presented in \textit{equation (10)} can be rewritten in terms of the pauli matrices. Using the definitions of the quasi-spin $\hat{J}$ presented in [Basdevant, p.233] and [Fys5419, week8] 
+
+\begin{equation}
+\begin{aligned}
+	\hat{J}_x^{(n)} &\rightarrow \frac{X_n}{2}, \\
+	\hat{J}_y^{(n)} &\rightarrow \frac{Y_n}{2}, \\
+	\hat{J}_z^{(n)} &\rightarrow \frac{Z_n}{2}, 
+\end{aligned}
+\end{equation}
+
+where \textit{X, Y} and \textit{Z} are the 2x2 Pauli operators. Having done that, we still need to express the ladder operators in terms of these new mappings
+
+\begin{equation}
+J_{\pm} = J_x \pm iJ_y
+\end{equation}. 
+
+With all the definitions, rewritting the Hamiltonian in terms of Pauli matrices becomes a trivial task of substituting in the correct terms, and combining the resulting operators using the a kronecker product. The Hamiltonian 
+
+\begin{equation}
+H = \frac{1}{2} (Z \otimes I + I \otimes Z) - \frac{v}{2} (X \otimes X - Y \otimes Y)
+\end{equation}
+
+
+
+The reason behind our interest in rewritting the Hamiltonian a second time lays in how measurements of the expectation values for particle system are performed on quantum computers. Our aim is to measure the state of the particles comprising a quantum system in basis states $|0>$ and $|1>$, which are the eigenstates of the Pauli Z matrix. 
 
 \end{document}
 
