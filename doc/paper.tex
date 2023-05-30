@@ -241,10 +241,62 @@ To estimate the ground state energy, the VQE algorithm involves three stages. In
 
 In the second stage of the algorithm, measurements are performed on the system state according to \textit{Postulate 3} for quantum measurements presented in [Nielsen, p.84-85]. During measurement, the qubit (or the wave function simulated using a qubit) collapses into one of the possible states of the system. This process is repeated a large number of times, and the resulting observations are used to approximate the probabilities associated with each possible substate of the system. Since the measurements are performed using a classical computer, it becomes easier to perform a large number of measurements and achieve accurate approximations of the probability amplitudes without the need to physically prepare particles for the system. As a result, efficient computation of the probabilities is enabled. 
 
-The last and final stage of the VQE finidind optimal paramters for our ansatz, which are the angles $\theta$ and $\phi$ corresponding to the rotations performed along the x- and y axes of the Bloch sphere. We could use the naive approach of incrementally iterating going through a large number of angles, and gain a precise approximation to the ground, however this will not suffice for larger many-body systems comprised of dozens of particles. Hundt proposes the use of gradient descent ([Hundt, p. 247]) as means of effectively computing angles for our ansatz. Since we 
+The last and final stage of the VQE algorithm is focused on finding the optimal parameters for our ansatz in order to minimize the expectation value produced by the algorithm. The parameters we aim to tune are the angles $\theta$ and $\phi$ corresponding to the rotations around the x- and y-axes of the Bloch sphere. A naive approach would involve incrementally iterating through a large number of angles to obtain a precise approximation of the ground state energy over time. However, this approach becomes inefficient for larger many-body systems with dozens of particles. Hundt proposes the use of gradient descent as a more effective method for approximating the optimal angles for our ansatz [Hundt, p. 247]. Fortunately, we can easily define the gradient of our parameterized ansatz. The expectation value can be measured in terms of the ansatz as follows:
 
+
+\begin{equation}
+\langle \psi \vert \hat{H} \vert \psi \rangle = \langle 0 \vert R_i(\phi)^{\dagger} \hat{H} R_i(\phi) \vert 0 \rangle.
+\end{equation}. 
+
+If we for instance derivate with respect to the angle $\phi$, we arrive at 
+
+\begin{equation}
+\frac{\partial}{\partial \phi} \left[\langle \psi(\theta,\phi) \vert \boldsymbol{H} \vert \psi(\theta,\phi) \rangle\right] = \langle \psi(\theta,\phi) \vert \boldsymbol{H} \left(-\frac{\imath}{2} \boldsymbol{\sigma}_y \vert \psi(\theta,\phi) \rangle + \mathrm{h.c.}\right)
+\end{equation}. 
+
+Following the methodology presented in [Fys5419, week11], we arrive at a final expression for the derivative of the expectation value
+
+\begin{equation}
+\langle \psi \vert \boldsymbol{I}^{\dagger}\hat{H}\left(-\frac{\imath}{2}\boldsymbol{\sigma}_i\vert \psi \rangle\right) = \frac{1}{2}\left[\langle \psi \vert R_i\left(\frac{\pi}{2}\right)^{\dagger}\hat{H}R_i\left(\frac{\pi}{2}\right)\vert \psi \rangle - \langle \psi \vert R_i\left(-\frac{\pi}{2}\right)^{\dagger}\hat{H}R_i\left(-\frac{\pi}{2}\right)^{\dagger}\vert \psi \rangle\right] = \frac{1}{2}\left(\langle\hat{H}(\phi+\frac{\pi}{2})\rangle - \langle\hat{H}(\phi-\frac{\pi}{2})\rangle\right).
+\end{equation}. 
+
+We will perform measurements and use the following gradient to tune our parameters to arrive at the final value.
 
 \section{Section III: Results}
+
+With the theory and methods explained, we can now present the results achieved by simulating the quanatum gates and variational quantum eigensolver.
+
+\subsection{Application of quantum gates to single qubits basis states}
+
+As the first part of our project, we prepared single qubits in their basis state $|0>$ and $|1>$. The effect each gate has on one of the states is presented below, presented in the order the gates were listed in \textbf{Section II}. The results of applying the gates are: 
+
+		\begin{enumerate}
+			\item[\textbf{I}. Identity gate] 
+				The result of applying both the $\sigma_0$ gate to both $|0>$ and $|1>$ results in the exact same states, as the identity gate is simply the identity matrix. Presented using matrices and vectors, the results can be written: 
+				\[
+				I \begin{pmatrix}
+				\alpha \\
+				\beta
+				\end{pmatrix}
+				=
+				\begin{pmatrix}
+				1 & 0 \\
+				0 & 1
+				\end{pmatrix} \\ \\ \\
+				\begin{pmatrix}
+				\alpha \\
+				\beta
+				\end{pmatrix}
+				=
+				\begin{pmatrix}
+				\alpha \\
+				\beta
+				\end{pmatrix}
+				\]
+
+
+		\end{enumerate}
+
 
 \end{document}
 
