@@ -56,7 +56,8 @@ On a quantum computer, the fundamental data type used for storing information is
 The following are the basic quantum gates which we will utilize to contruct more complex gates and ciruits: 
 
 \begin{enumerate}
-	\item[\textbf{I}.] \textbf{Identity gate}
+	\item[\textbf{I}.] \textbf{Identity gate} \\
+		This gate does nothing to the state of the qubit, as if a gate never was applied to the qubit in the first place.
 		\begin{equation*}
 			I = \begin{pmatrix}
 			1 & 0 \\
@@ -64,7 +65,8 @@ The following are the basic quantum gates which we will utilize to contruct more
 		\end{pmatrix}.
 	\end{equation*}
 
-	\item[\textbf{II.}] \textbf{Pauli-X gate}
+	\item[\textbf{II.}] \textbf{Pauli-X gate} \\
+		The Pauli-X gate, also known as the quantum NOT-gate, flips the probability amplitudes $\alpha$ and $\beta$, meaning that these values swap place in the state vector. 
 		\begin{equation*}
 			X = \begin{pmatrix}
 			0 & 1 \\
@@ -72,7 +74,8 @@ The following are the basic quantum gates which we will utilize to contruct more
 		\end{pmatrix}.
 	\end{equation*}
 
-	\item[\textbf{III.}] \textbf{Pauli-Y gate}
+	\item[\textbf{III.}] \textbf{Pauli-Y gate} \\
+		The action of the Pauli Y gate can be described as the mapping of $|0>$ to $i|1>$ and $|1>$ to $i¦0>$. The action of the gate can also be viewed as a rotation of the state of the qubit around the y-axis of the Bloch sphere by 180 degrees.
 		\begin{equation*}
 			Y = \begin{pmatrix}
 			0 & -i \\
@@ -80,7 +83,8 @@ The following are the basic quantum gates which we will utilize to contruct more
 		\end{pmatrix}.
 	\end{equation*}
 
-	\item[\textbf{IV.}] \textbf{Pauli-Z gate}
+	\item[\textbf{IV.}] \textbf{Pauli-Z gate} \\
+		The Pauli Z gate flips the phase of $|1>$ to $-|1>$ while leaving $|0>$, meaning it flips the relative phase of the qubit. 
 		\begin{equation*}
 			Z = \begin{pmatrix}
 			1 & 0 \\
@@ -88,7 +92,8 @@ The following are the basic quantum gates which we will utilize to contruct more
 		\end{pmatrix}.
 	\end{equation*}
 
-	\item[\textbf{V.}] \textbf{Hadamard gate}
+	\item[\textbf{V.}] \textbf{Hadamard gate} \\
+		The result of applying the Hadamard gate to either $|0>$ or $|1>$ is a qubit in a super position of both states, with both the basis states having a 50\% of occuring. The result is the exactly the same, independent of which of the basis states the qubit is prepared in.
 		\begin{equation*}
 			H = \frac{1}{\sqrt{2}} \begin{pmatrix}
 			1 & 1 \\
@@ -96,7 +101,9 @@ The following are the basic quantum gates which we will utilize to contruct more
 		\end{pmatrix}.
 	\end{equation*}
 
-	\item[\textbf{VI.}] \textbf{Phase gate}
+	\item[\textbf{VI.}] \textbf{Phase gate} \\
+		The Phase gate, when applied to a qubit, represent the rotation of the second part of a qubit state vector corresponding to $|1>$ by 90 degrees around the z-axis of the bloch sphere.
+
 		\begin{equation*}
 			S = \begin{pmatrix}
 			1 & 0 \\
@@ -112,7 +119,10 @@ The following are the basic quantum gates which we will utilize to contruct more
   \label{fig:example}
 \end{figure}
 
+	\item[\textbf{VII.}] \textbf{CNOT-gate} \\
 \end{enumerate}
+
+
 
 \subsection{Lipkin-Meshkov-Glick model}
 The Lipkin-Meshkov-Glick (LMG) model, often called Lipkin model, is a quantum model describing the collective beahvior of a large number of particles which was introduced in 1964 for the purpose of studying approximation methods used to solve many-body problems. Since its introuduction, it has become one of the standard benchmarks [Physical review C] for many-body methods in nuclear and particle physics. The model describes a system of N fermions (i.e. particles with half-integer spin values like electrons and quarks) which are distributed among two energy levels with quantum numbers $\sigma$ = ±1. The upper level has $2\sigma$ = +1 and energy $e_{1}$ = $e/2$, while the lower level has $2\sigma$ = -1 and energy $e_{2}$ = $e/2$. This can be visualized in the following way
@@ -268,11 +278,11 @@ With the theory and methods explained, we can now present the results achieved b
 
 \subsection{Application of quantum gates to single qubits basis states}
 
-As the first part of our project, we prepared single qubits in their basis state $|0>$ and $|1>$. The effect each gate has on one of the states is presented below, presented in the order the gates were listed in \textbf{Section II}. The results of applying the gates are: 
+As the first step of our project, we prepared single qubits in their basis state $|0>$ and $|1>$ and studied the result the application of the various quantum gates had on these one qubit systems. The effect each gate had on the basis states is presented below in the order the gates were listed in \textbf{Section II}. The results of applying the gates are: 
 
 		\begin{enumerate}
-			\item[\textbf{I}. Identity gate] 
-				The result of applying both the $\sigma_0$ gate to both $|0>$ and $|1>$ results in the exact same states, as the identity gate is simply the identity matrix. Presented using matrices and vectors, the results can be written: 
+			\item[\textbf{I}. ] Identity gate \\
+				The result of applying both the $\sigma_0$ gate to both $|0>$ and $|1>$ results in the exact same states, as the identity gate is simply the identity matrix. Presented using matrices and vectors, the results can be written.
 				\[
 				I \begin{pmatrix}
 				\alpha \\
@@ -294,6 +304,36 @@ As the first part of our project, we prepared single qubits in their basis state
 				\end{pmatrix}
 				\]
 
+			\item[\textbf{II}. ] Pauli-X gate \\
+				The application of the Pauli X gate result in flipping of the probability amplitudes of the qubit, resulting in $\alpha$ and $\beta$ swapping places in the qubit. 
+				\[
+				I \begin{pmatrix}
+				\alpha \\
+				\beta
+				\end{pmatrix}
+				=
+				\begin{pmatrix}
+				0 & 1 \\
+				1 & 0
+				\end{pmatrix} \\ \\ \\
+				\begin{pmatrix}
+				\alpha \\
+				\beta
+				\end{pmatrix}
+				=
+				\begin{pmatrix}
+				\beta \\
+				\alpha
+				\end{pmatrix}
+				\] 
+
+				Preparing a qubit in state |0> and applying the quantum NOT-gate results in state |1>.
+
+			\item[\textbf{I}. ] Pauli-X gate \\
+
+
+
+			
 
 		\end{enumerate}
 
