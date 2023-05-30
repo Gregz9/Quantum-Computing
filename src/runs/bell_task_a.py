@@ -155,7 +155,9 @@ if __name__ == "__main__":
     H_b00 = q0_Hadamard @ b00
     print(H_b00, "\n")
 
-    print("Measurements after application of CNOT(0, 1)-gate")
+    print(
+        "Measurements after application of Hadamard-gate to the first qubit of the bell pair"
+    )
     print("-------------------------------------------------------------\n")
     psi, outcome, counts, meas_probs = measure(H_b00, 1000)
     print("State of the system after measurement: ")
@@ -222,7 +224,7 @@ if __name__ == "__main__":
     print("Result of applying the adjoint of the gates to the b00 state: ")
     print(Hadamard_adj @ CNOT_adj @ b00, "\n")
 
-    print("Measurements after application of CNOT(0, 1) and Hadamar gate to b00")
+    print("Measurements after application of CNOT(0, 1) and Hadamard gate to b00")
     print("-------------------------------------------------------------\n")
     psi, outcome, counts, meas_probs = measure(HCNOT_b00, 1000)
     print("State of the system after measurement: ")
