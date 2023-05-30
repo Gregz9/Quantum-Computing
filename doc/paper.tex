@@ -180,7 +180,7 @@ Where \textit{V} and \textit{W} are constants, $\hat{H}_1$ represents the intera
 which when substituted into the equation for the Hamiltonian $\hat{H}$ , the equation for \textit{N=2} particles is given by
 
 \begin{equation}
-\hat{H} = \epsilon\hat{J}_z - \frac{1}{2}V(\hat{J}_+\hat{J}_+ + \hat{J}_-\hat{J}_-) + \frac{1}{2}W\left( -N + J_+ J_- + J_- J_+ \right).
+	H_I = 2\sum_{p}\hat{J}_z(p) - \frac{V}{2}\sum_{p \neq q}(\hat{J}_+(p)\hat{J}_+(q) + \hat{J}_-(q)\hat{J}_-(p)) - \frac{W}{2}\sum_{p \neq q}(\hat{J}_+(p)\hat{J}_-(q) - \hat{J}_-(p)\hat{J}_+(q))
 \end{equation}
 
 Since the quasi-spin operators exhibit behavior similar to regular spin operators, they follow the commutation relations of angular momentum (for a detailed proof, refer to [Fys5429, lecture notes week 8]). This property is of great importance because fermions, such as electrons, are particles with half-integer spin (1/2-spin). It means that a fermion possesses intrinsic spin on its own (independent of its motion) [Basdevant, p.275]. In the context of atomic systems, the energy eigenstates are intimately connected to spin [Nielsen, p.310]. Therefore, when describing a system composed of atomic particles, it is crucial to consider these internal degrees of freedom.
@@ -209,15 +209,42 @@ where \textit{X, Y} and \textit{Z} are the 2x2 Pauli operators. Having done that
 J_{\pm} = J_x \pm iJ_y
 \end{equation}. 
 
-With all the definitions, rewritting the Hamiltonian in terms of Pauli matrices becomes a trivial task of substituting in the correct terms, and combining the resulting operators using the a kronecker product. The Hamiltonian 
+With all the necessary definitions in place, rewriting the Hamiltonian in terms of Pauli matrices becomes a straightforward task. We can substitute the appropriate terms into Equation (10) and combine the resulting operators using the Kronecker product. For the Hamiltonian with N=2, the Hamiltonian matrix can be expressed as the sum of the following tensor products:
 
 \begin{equation}
-H = \frac{1}{2} (Z \otimes I + I \otimes Z) - \frac{v}{2} (X \otimes X - Y \otimes Y)
+H = \frac{1}{2} (Z_0 \otimes I + I \otimes Z_1) - \frac{v}{2} (X_1 \otimes X_2 - Y_1 \otimes Y_2), 
 \end{equation}
 
 
+The reason we are interested in rewriting the Hamiltonian a second time is because of how measurements are performed on quantum computers for particle systems. Our goal is to measure the states of the particles in basis states |0⟩ and |1⟩ (or combinations of these states). These basis states correspond to the north and south poles of the Bloch sphere (as shown in Figure 1), and interestingly, they are also the eigenstates of the Pauli Z matrix. This means that measurements are typically performed along the Z-axis. Therefore, in order to perform measurements, we need to express the Lipkin model in terms of the Pauli operators and then rotate the Hamiltonian into the Z-basis using gate equivalences.
 
-The reason behind our interest in rewritting the Hamiltonian a second time lays in how measurements of the expectation values for particle system are performed on quantum computers. Our aim is to measure the state of the particles comprising a quantum system in basis states $|0>$ and $|1>$, which are the eigenstates of the Pauli Z matrix. 
+\subsection{Analytical method: Diagonalization}
+In solving the Lipkin model, we employ the eigendecomposition technique to find exact solutions by diagonalizing the Hamiltonian matrix. This technique relies on the fundamental property that self-adjoint operators, including the Hamiltonian, can be diagonalized. This implies the existence of orthogonal eigenvectors denoted by $\mathbf{v}$ and corresponding eigenvalues denoted by $\lambda$, satisfying the equation $\mathbf{A} \mathbf{v} = \lambda \mathbf{v}$.
+
+Since the Hamiltonian is a Hermitian operator [Scherer, p.38], which is self-adjoint, we can apply the eigendecomposition technique to it. By solving the characteristic equation $\det(H - \epsilon I) = 0$, where $H$ represents the Hamiltonian matrix and $I$ is the identity matrix, we can determine all the eigenvalues of the Hamiltonian. These eigenvalues represent the possible energy states within the Lipkin model.
+
+The eigendecomposition method serves as a powerful tool for obtaining precise solutions to the Lipkin model and gaining insights into its energy spectrum. By diagonalizing the Hamiltonian matrix, we can extract valuable information regarding the system's energy levels and associated eigenvectors, which describe the various states of the system.
+
+
+\subsection{Power iteration}
+In our endeavor to showcase the prowess of the variational quantum algorithm, we will employ the power method for finding an approximate solution to the problem of finding the ground state of the Hamiltonian. However, we will tailor it slightly to seek the lowest eigenvalue instead of the largest. This method is remarkably straightforward, involving the computation of a matrix-vector product between our target matrix and a randomly initialized vector. The resulting product is then assigned to a new vector, which is subsequently normalized. This iterative process is repeated for a specified number of iterations or until convergence is attained.
+
+The key insight of the power method is that with each multiplication, the initially initialized vector aligns itself more closely with the eigenvector corresponding to the lowest eigenvalue of the target matrix. Convergence is determined by measuring the absolute value of the difference between the product of the current and previous iterations of the algorithm.
+
+By employing the power method with the necessary modifications, we can effectively find the lowest eigenvalue and its corresponding eigenvector, thereby gaining valuable insights into the properties and behavior of the matrix of interest. A detailed descripton of the method is presented in [Chapla, p.794].
+
+
+\subsection{Variational Quantum Eigensolver}
+The Variational Quantum Eigensolver (VQE) is a method used to estimate the ground state energy of a given Hamiltonian, such as the Lipkin Hamiltonian. This algorithm is specifically designed to handle Hamiltonian matrices that can be expressed as a sum of a polynomial number of terms involving Pauli operators [Hundt, p.242]. Examples of such Hamiltonians include the Lipkin model, Ising model, and the Harmonic Oscillator.
+
+To estimate the ground state energy, the VQE algorithm involves three stages. In the first stage, an ansatz state is created, which is an initial state parameterized and constructed using single-qubit rotation matrices, namely $R_x$ and $R_y$. These rotations correspond to rotations around the x- and y-axes of the Bloch sphere shown in Figure 1. If the system consists of multiple qubits, entanglement is introduced among the qubits of the ansatz state using Controlled-NOT gates. This is done due to the unknown level of entanglement between the qubits of the system prior to performing measurements.
+
+In the second stage of the algorithm, measurements are performed on the system state according to \textit{Postulate 3} for quantum measurements presented in [Nielsen, p.84-85]. During measurement, the qubit (or the wave function simulated using a qubit) collapses into one of the possible states of the system. This process is repeated a large number of times, and the resulting observations are used to approximate the probabilities associated with each possible substate of the system. Since the measurements are performed using a classical computer, it becomes easier to perform a large number of measurements and achieve accurate approximations of the probability amplitudes without the need to physically prepare particles for the system. As a result, efficient computation of the probabilities is enabled. 
+
+The last and final stage of the VQE finidind optimal paramters for our ansatz, which are the angles $\theta$ and $\phi$ corresponding to the rotations performed along the x- and y axes of the Bloch sphere. We could use the naive approach of incrementally iterating going through a large number of angles, and gain a precise approximation to the ground, however this will not suffice for larger many-body systems comprised of dozens of particles. Hundt proposes the use of gradient descent ([Hundt, p. 247]) as means of effectively computing angles for our ansatz. Since we 
+
+
+\section{Section III: Results}
 
 \end{document}
 
