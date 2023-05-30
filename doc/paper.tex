@@ -120,6 +120,18 @@ The following are the basic quantum gates which we will utilize to contruct more
 \end{figure}
 
 	\item[\textbf{VII.}] \textbf{CNOT-gate} \\
+		The Controlled-NOT gate, often abbreviated as CNOT, is a more complex gate that combines the Identity and Pauli-X gates using a Kronecker product. This gate is designed to operate on quantum systems composed of two qubits rather than a single qubit. The name of the gate provides a clue about its functionality. By using the first qubit as a control signal, the CNOT gate flips the amplitudes of the second qubit if the control qubit is in the basis state |1>, which corresponds to an active high signal in classical computing. However, if the control qubit is in the state |0>, no changes are applied to the second qubit. The specific gate we are discussing here is the $CNOT_{0,1}$-gate, where the first qubit serves as the control signal.
+		It's important to note that we can also use the second qubit as the control signal by simply changing the order of the gates in the tensor product used to create the CNOT gate from $I \otimes X$ to $X \otimes I$. In matrix form, this operator is represented by a 4x4 matrix that can be written as:
+		
+		\begin{equation*}
+		 CNOT_{0,1} = \begin{pmatrix}
+			1 & 0 & 0 & 0 \\
+			0 & 1 & 0 & 0 \\
+			0 & 0 & 0 & 1 \\
+			0 & 0 & 1 & 0 \\
+		\end{pmatrix}
+	\end{equation*}
+
 \end{enumerate}
 
 
@@ -303,7 +315,6 @@ As the first step of our project, we prepared single qubits in their basis state
 				\beta
 				\end{pmatrix}
 				\]
-
 			\item[\textbf{II}. ] Pauli-X gate \\
 				The application of the Pauli X gate result in flipping of the probability amplitudes of the qubit, resulting in $\alpha$ and $\beta$ swapping places in the qubit. 
 				\[
@@ -326,10 +337,53 @@ As the first step of our project, we prepared single qubits in their basis state
 				\alpha
 				\end{pmatrix}
 				\] 
+			\item[\textbf{III}. ] Pauli-Y gate \\
+				The application of the Y-gate resulted in the exact behavipur described in point III of \textbf{Section II: Quantum gates}, a rotation of the qubits amplitudes bu 180 degrees around the y-axis. The result presented as a matrix-vector product is: 
+				\[
+				Y \begin{pmatrix}
+				\alpha \\
+				\beta
+				\end{pmatrix}
+				=
+				\begin{pmatrix}
+				0 & -i \\
+				i & 0
+				\end{pmatrix}
+				\begin{pmatrix}
+				\alpha \\
+				\beta
+				\end{pmatrix}
+				=
+				\begin{pmatrix}
+				-i\beta \\
+				i\alpha
+				\end{pmatrix}
+				\] 	
+			\item[\textbf{VI}. ] Pauli-Z gate \\
+				Just as expected based on the description provieded in the theory part, the Z-gate flips the relative phase of the state vector of our qubit. The result visualized using matrix-vector product is
+				\[
+				Z \begin{pmatrix}
+				\alpha \\
+				\beta
+				\end{pmatrix}
+				=
+				\begin{pmatrix}
+				1 & 0 \\
+				0 & -1
+				\end{pmatrix}
+				\begin{pmatrix}
+				\alpha \\
+				\beta
+				\end{pmatrix}
+				=
+				\begin{pmatrix}
+				\alpha \\
+				-\beta
+				\end{pmatrix}
+				\]
+			\item[\textbf{VI}. ] Pauli-Z gate \\
 
-				Preparing a qubit in state |0> and applying the quantum NOT-gate results in state |1>.
 
-			\item[\textbf{I}. ] Pauli-X gate \\
 
 
 
