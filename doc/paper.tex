@@ -34,7 +34,7 @@
 
 We present a comprehensive simulation of the simplified Hamiltonian of the Lipkin-Meshov-Glikov (LMG) model on a classical computer, employing the Variational Quantum Eigensolver (VQE) algorithm. Initially, we explore the outcomes arising from the application of diverse single qubit quantum gates to one qubit systems prepared in basis states. Subsequently, an entangler circuit is constructed, and one of the four bell pairs is prepared, to which we apply the Hadamard and CNOT gates. Utilizing our newfound grasp of the foundational principles governing quantum systems, we construct quantum circuits for generating ansatz states and methodically develop the VQE from ground up.
 
-To assess the VQE's efficacy, we apply it to synthetic quantum systems representing single and two-particle systems, comparing its performance against numerical and analytical solvers. Transitioning to the Lipkin model, we leverage the properties of annihilation and creation operators to reformulate the Lipkin model's Hamiltonian first in terms of the quasi-spin operator and then Pauli operators. Employing this encoding scheme, we apply the VQE to systems with spin J=1 and 2, corresponding to Lipkin systems with two and four fermions, respectively. We compare the results against exact solutions obtained through standard diagonalization methods. This analysis provides valuable insights into the performance and accuracy of the VQE approach in tackling the Lipkin model's Hamiltonian.
+To assess the VQE's efficacy, we apply it to quantum systems representing single and two-particle systems, comparing its performance against numerical and analytical solvers. Transitioning to the Lipkin model, we leverage the properties of annihilation and creation operators to reformulate the Lipkin model's Hamiltonian first in terms of the quasi-spin operator and then Pauli operators. Employing this encoding scheme, we apply the VQE to systems with spin J=1 and 2, corresponding to Lipkin systems with two and four fermions, respectively. We compare the results against exact solutions obtained through standard diagonalization methods. This analysis provides valuable insights into the performance and accuracy of the VQE approach in tackling the Lipkin model's Hamiltonian.
 	
 
 \section{Introduction}
@@ -267,6 +267,63 @@ The following are the basic quantum gates which we will utilize to contruct more
 
 \end{enumerate}
 
+\subsection{One and two body Hamiltonians} 
+Prior to the simulation of the Lipkin model, we are going to simulate two simple Hamiltonians using our VQE algoirthm, and access its performance by comparing the achieved results against the eigenvalues found using standard eigenvalue decomposition. The basic systems we consider are described below. 
+
+\subsubsection{One body Hamiltonian}
+We define a symmetric matrix $H \in \mathbb{R}^{2 \times 2}$ as:
+\[
+H =
+\begin{bmatrix}
+H_{11} & H_{12} \\
+H_{21} & H_{22}
+\end{bmatrix},
+\]
+We let $H = H_0 + H_I$, where:
+\[
+H_0 =
+\begin{bmatrix}
+E_1 & 0 \\
+0 & E_2
+\end{bmatrix},
+\]
+is a diagonal matrix. Similarly,
+\[
+H_I =
+\begin{bmatrix}
+V_{11} & V_{12} \\
+V_{21} & V_{22}
+\end{bmatrix},
+\]
+where $V_{ij}$ represent various interaction matrix elements. We can view $H_0$ as the non-interacting solution:
+\[
+H_0|0\rangle = E_1|0\rangle, \quad (1)
+\]
+and
+\[
+H_0|1\rangle = E_2|1\rangle, \quad (2)
+\]
+where we have defined the orthogonal computational one-qubit basis states $|0\rangle$ and $|1\rangle$.
+
+We rewrite $H$ (and $H_0$ and $H_I$) via Pauli matrices:
+\[
+H_0 = E I + \Omega \sigma_z, \quad E = \frac{E_1 + E_2}{2}, \quad \Omega = \frac{E_1 - E_2}{2},
+\]
+and
+\[
+H_I = cI + \omega_z \sigma_z + \omega_x \sigma_x,
+\]
+with $c = \frac{V_{11} + V_{22}}{2}$, $\omega_z = \frac{V_{11} - V_{22}}{2}$, and $\omega_x = V_{12} = V_{21}$. We let our Hamiltonian depend linearly on a strength parameter $\lambda$:
+\[
+H = H_0 + \lambda H_I,
+\]
+with $\lambda \in [0, 1]$, where the limits $\lambda = 0$ and $\lambda = 1$ represent the non-interacting (or unperturbed) and fully interacting system, respectively. The model is an eigenvalue problem with only two available states.
+
+Here we set the parameters $E_1 = 0$, $E_2 = 4$, $V_{11} = -V_{22} = 3$, and $V_{12} = V_{21} = 0.2$. The non-interacting solutions represent our computational basis. Pertinent to our choice of parameters, at $\lambda \geq \frac{2}{3}$, the lowest eigenstate is dominated by $|1\rangle$ while the upper is $|0\rangle$. At $\lambda = 1$, the $|0\rangle$ mixing of the lowest eigenvalue is 1\%, while for $\lambda \leq \frac{2}{3}$, we have a $|0\rangle$ component of more than 90\%. The character of the eigenvectors has therefore been interchanged when passing $\lambda = \frac{2}{3}$. The value of the parameter $V_{12}$ represents the strength of the coupling between the two states.
+
+\subsubsection{Two-body Hamiltonian}
+
+
 
 \subsection{Lipkin-Meshkov-Glick model}
 The Lipkin-Meshkov-Glick (LMG) model, often called Lipkin model, is a quantum model describing the collective beahvior of a large number of particles which was introduced in 1964 for the purpose of studying approximation methods used to solve many-body problems. Since its introuduction, it has become one of the standard benchmarks [Physical review C] for many-body methods in nuclear and particle physics. The model describes a system of N fermions (i.e. particles with half-integer spin values like electrons and quarks) which are distributed among two energy levels with quantum numbers $\sigma$ = ±1. The upper level has $2\sigma$ = +1 and energy $e_{1}$ = $e/2$, while the lower level has $2\sigma$ = -1 and energy $e_{2}$ = $e/2$. This can be visualized in the following way
@@ -445,7 +502,7 @@ $\begin{pmatrix} 1 \\ 0 \end{pmatrix}$ & $S = \begin{pmatrix} 1 & 0 \\ 0 & i \en
 \captionof{table}{Results of applying listed gates to a qubit prepared in the basis state $|0\rangle$.}
 \end{center}
 
-As part of our expermients with quantum circuits, we also constructed the entangler circuit and prepared the first bell state $\frac{1}{\sqrt{2}}(|00\rangle + |11\rangle)$. Thereafter we applied the Hadamard gate to first and second gates separetly, before proceeding with the application of CNOT(0,1)-gate, and ending with the application of the Hadamard and CNOT(0,1) gates in the reverse order to that of the entangler circuit. The last operation resulted in the uncomputation of the entanglement. All results are presented in the table below.  
+During our exploration of quantum circuits, we akso conducted experiments involving the construction of an entangler circuit and the preparation of the first Bell state, $\frac{1}{\sqrt{2}}(|00\rangle + |11\rangle)$. Subsequently, we applied the Hadamard gate to the first and second qubits individually. Following this, we proceeded with the application of the CNOT(0,1) gate and concluded by reversing the order of the Hadamard and CNOT(0,1) gates, in contrast to the entangler circuit. Notably, this final operation resulted in the uncomputation of the entanglement. The comprehensive results of these operations are presented in the table below.
 
 \begin{center}
 \begin{tabular}{|c|c|c|}
@@ -461,9 +518,8 @@ $\frac{1}{\sqrt{2}}(|00\rangle + |11\rangle)$ & CNOT(0,1)adj$\otimes$Hadj & $|00
 \end{tabular}
 \end{center}
 
-\subsection{Solving the ine qubit synthetic Hamiltonian} 
-
-
+\subsection{Solving one and two qubit Hamiltonians} 
+Prior to simulating the Lipkin model using our VQE alogorithm, we constructed two simple Hamiltonians each representing a system comprised of one and two qubits respectively. We started by setting up the one qubit system where the Hamiltonian matrix is given by the simple eqution constituting a non-interacting part $H_0$ and an interacting part $H_1$,  
 
 
 
