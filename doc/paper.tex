@@ -34,7 +34,7 @@
 
 We present a comprehensive simulation of the simplified Hamiltonian of the Lipkin-Meshov-Glikov (LMG) model on a classical computer, employing the Variational Quantum Eigensolver (VQE) algorithm. Initially, we explore the outcomes arising from the application of diverse single qubit quantum gates to one qubit systems prepared in basis states. Subsequently, an entangler circuit is constructed, and one of the four bell pairs is prepared, to which we apply the Hadamard and CNOT gates. Utilizing our newfound grasp of the foundational principles governing quantum systems, we construct quantum circuits for generating ansatz states and methodically develop the VQE from ground up.
 
-To assess the VQE's efficacy, we apply it to quantum systems representing single and two-particle systems, comparing its performance against numerical and analytical solvers. Transitioning to the Lipkin model, we leverage the properties of annihilation and creation operators to reformulate the Lipkin model's Hamiltonian first in terms of the quasi-spin operator and then Pauli operators. Employing this encoding scheme, we apply the VQE to systems with spin J=1 and 2, corresponding to Lipkin systems with two and four fermions, respectively. We compare the results against exact solutions obtained through standard diagonalization methods. This analysis provides valuable insights into the performance and accuracy of the VQE approach in tackling the Lipkin model's Hamiltonian.
+To assess the VQE's efficacy, we apply it to quantum systems representing single and two-particle systems, comparing its performance against an analytical solver. Transitioning to the Lipkin model, we leverage the properties of annihilation and creation operators to reformulate the Lipkin model's Hamiltonian first in terms of the quasi-spin operator and then Pauli operators. Employing this encoding scheme, we apply the VQE to systems with spin J=1 and 2, corresponding to Lipkin systems with two and four fermions, respectively. We compare the results against exact solutions obtained through standard diagonalization methods. This analysis provides valuable insights into the performance and accuracy of the VQE approach in tackling the Lipkin model's Hamiltonian.
 	
 
 \section{Introduction}
@@ -518,14 +518,6 @@ Since the Hamiltonian is a Hermitian operator [Scherer, p.38], which is self-adj
 The eigendecomposition method serves as a powerful tool for obtaining precise solutions to the Lipkin model and gaining insights into its energy spectrum. By diagonalizing the Hamiltonian matrix, we can extract valuable information regarding the system's energy levels and associated eigenvectors, which describe the various states of the system.
 
 
-\subsection{Power iteration}
-In our endeavor to showcase the prowess of the variational quantum algorithm, we will employ the power method for finding an approximate solution to the problem of finding the ground state of the Hamiltonian. However, we will tailor it slightly to seek the lowest eigenvalue instead of the largest. This method is remarkably straightforward, involving the computation of a matrix-vector product between our target matrix and a randomly initialized vector. The resulting product is then assigned to a new vector, which is subsequently normalized. This iterative process is repeated for a specified number of iterations or until convergence is attained.
-
-The key insight of the power method is that with each multiplication, the initially initialized vector aligns itself more closely with the eigenvector corresponding to the lowest eigenvalue of the target matrix. Convergence is determined by measuring the absolute value of the difference between the product of the current and previous iterations of the algorithm.
-
-By employing the power method with the necessary modifications, we can effectively find the lowest eigenvalue and its corresponding eigenvector, thereby gaining valuable insights into the properties and behavior of the matrix of interest. A detailed descripton of the method is presented in [Chapla, p.794].
-
-
 \subsection{Variational Quantum Eigensolver}
 The Variational Quantum Eigensolver (VQE) is a method used to estimate the ground state energy of a given Hamiltonian, such as the Lipkin Hamiltonian. This algorithm is specifically designed to handle Hamiltonian matrices that can be expressed as a sum of a polynomial number of terms involving Pauli operators [Hundt, p.242]. Examples of such Hamiltonians include the Lipkin model, Ising model, and the Harmonic Oscillator.
 
@@ -600,10 +592,64 @@ $\frac{1}{\sqrt{2}}(|00\rangle + |11\rangle)$ & CNOT(0,1)adj$\otimes$Hadj & $|00
 \end{center}
 
 \subsection{Solving one and two qubit Hamiltonians} 
-Prior to simulating the Lipkin model using our VQE alogorithm, we constructed two simple Hamiltonians each representing a system comprised of one and two qubits respectively. We started with the one-body Hamiltonian, where we rewrote the Hamiltonian in terms of the Pauli operators and solved for the lowest eigenvalue using eigendecomposition and the power method before we set up our ansatz and use the VQE to find the ground state energy. 
+Prior to simulating the Lipkin model using our VQE algorithm, we constructed two simple Hamiltonians representing systems comprised of one and two qubits respectively. Initially, we focused on the one-body Hamiltonian and expressed it in terms of the Pauli operators. By performing eigendecomposition, we obtained the lowest eigenvalue as a reference. Subsequently, we set up our ansatz and employed the VQE algorithm to find the ground state energy.
 
+The figure below displays the resulting energies of the one-body Hamiltonian, with the VQE results indicated by dots in the lower plot. Notably, the VQE algorithm successfully approximates the ground state energy of this Hamiltonian. Examining the energy levels of the system, we observe that up until $\lambda=\frac{2}{3}$, the lowest eigenstate is predominantly characterized by $|0>$, while the upper eigenstate is dominated by $|1>$. However, beyond this threshold, a significant change occurs as the energy levels invert their direction, indicating an interchange in the character of the eigenvectors.
 
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth, height=0.65\textwidth]{figures/VQE_vs_Analytical_1qubit.png}
+  \caption{Energy levels for the one-body Hamiltonian from subsection 3.2.1.}
+  \label{fig:ex2}
+\end{figure}
 
+When simulating the two-body Hamiltonian, we observe that the VQE again closely resembles the analytical solution, although the approximation has slighlty less precision than in the case of the one-body Hamiltonian above. The two lewest energy levels also display a similiar behavior to that of the energy levels above, albeit for different values of the interaction strength. The energy levels are displayed in teh figure below. Another thing we notice about the VQE, is the already apparent slow down of the computations, which is caused by our representation of the operators in terms of matrices. 
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth, height=0.75\textwidth]{figures/VQE_vs_Analytical_2qubits.png}
+  \caption{Energy levels for the two-body Hamiltonian from subsection 3.2.2.}
+  \label{fig:ex3}
+\end{figure}
+
+Besides the energy levels of each of the model's eigenstates, we have also measured the von Neumann entropy for the first qubit of the system in order to study entanglement within this particular system. As can be seen from Figure $\ref{fig:entropy}$, there is a jump in entropy around the point where we have a level crossing, at around $\lambda=0.4$. At an interaction strength of $\lambda=0$, the many-body states are solely defined by their computational basis states. As we increase the interaction strength, the degree of mixing increases, leading to a rise in entropy. This trend continues until we reach the level crossing point, where we observe a sudden and additional increase in entropy. We observe similar behaviors for the other states. The key takeaway from this example is that entanglement is influenced by the Hamiltonian itself, including the strength of the interaction matrix elements and the non-interacting energies.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth, height=0.75\textwidth]{figures/Von_Neumann_entropy_2qubit.png}
+  \caption{Von Neumann entropy for qubit 0 of the two-body Hamiltonian of subsection 3.2.2.}
+  \label{fig:entropy}
+\end{figure}
+
+\subsection{Results of simulating the Lipkin model}
+While simulating the Lipkin model, we observed that our VQE algorithm, written purely in numpy without the utilization of any optimization libraries, started to display worse levels of precision. As a result, we improved our VQE algorithm by utilizing the \textit{minimize} method of the \textit{Scipy} library, resulting in visibly better precision and faster convergence times.
+
+Starting with the case when the total spin of the Lipkin model is $J=1$, we see that compared to the previous Hamiltonians, the energies corresponding to the eigenstates of the system display symmetries about the x-axis. Specifically, the lowest and highest eigenvalues are antisymmetric but proportional. In other words, as $E_2$ becomes larger as a function of $V/\epsilon$, $E_0$ increases in the opposite (negative) direction. Interestingly, the middle eigenvalue does not evolve and remains equal to zero at all times, correctly indicating the state where each of the two fermions occupies lower and upper energy levels, respectively. The results recorded during simulation of the the Lipkin model with two fermions are shown in Figure $\ref{fig:lipkin_J1}$.
+
+\begin{figure}[H]
+  \centering
+	\includegraphics[width=0.9\textwidth, height=0.75\textwidth]{figures/VQE_vs_Analytical_Lipkin_J1_Scipy.png}
+	\caption{Energy levels of the Lipkin model with a total spin J=1. Solution obtained using the VQE algorithm are marked with 'x'.}
+  \label{fig:lipkin_J1}
+\end{figure}
+
+We observe similar symmetries when the total spin of the Lipkin model is $J=2$. In this case, the eigenvalues above the x-axis perfectly mirror the eigenvalues below. These symmetries arise from the conservation of total spin or angular momentum, as the Lipkin model's Hamiltonian remains invariant under spin rotations. This invariance gives rise to symmetries in the energy levels and eigenstates of the system. The preservation of total spin leads to specific patterns and symmetries, such as the eigenvalues being antisymmetric but proportional, and the middle eigenvalue remaining unchanged. These symmetries are rooted in the fundamental preservation of total spin, which governs the behavior of the Lipkin model.
+
+Moving on to the approximation of the lowest eigenvalue, we were once again able to achieve a good fit to the analytical solution (see Fig. $\ref{fig:lipkin_J2}$, albeit at the expense of time. The algorithm required approximately 200-300 seconds to complete the computations. This highlights the point that while classical computers can be used to simulate algorithms like VQE and quantum systems with a few qubits, the increase in degrees of freedom associated with larger simulations makes it increasingly challenging. Simulating systems with more than four qubits becomes difficult, and simulating systems with more than ten qubits becomes nearly impossible, especially on standard laptops. Therefore, the limitations of classical computers in simulating large quantum systems underscore the need for quantum computers and algorithms like VQE to fully explore and understand complex quantum phenomena.
+
+\begin{figure}[H]
+  \centering
+	\includegraphics[width=0.9\textwidth, height=0.75\textwidth]{figures/VQE_vs_Analytical_Lipkin_J2_Scipy.png}
+	\caption{Energy levels of the Lipkin model with a total spin J=2. Solution obtained using the VQE algorithm are marked with 'o'.}
+  \label{fig:lipkin_J2}
+\end{figure}
+
+\subsection{Summary}
+We initiated this project by examining the behavior of quantum gates on individual quantum bits and investigating their combination to construct more intricate circuits applicable to an arbitrary number of particles. Subsequently, we proceeded to implement the Variational Quantum Eigensolver (VQE) and develop the necessary circuits to prepare suitable ansatzes, which we coupled with the VQE to approximate the ground state energy of three distinct Hamiltonians. Beginning with a single-body Hamiltonian and culminating with the Lipkin model consisting of four fermions, we evaluated the performance of our VQE algorithm against an analytical solver, thereby gaining valuable insights.
+
+Based on our attained results, we can assert that VQE approximates the lowest eigenvalue of the presented Hamiltonian matrices with good precision. However, it is susceptible to the curse of dimensionality stemming from the nature of qubits and the systems they compose. While the algorithm operates swiftly for systems encompassing one or two qubits, a significant reduction in computational speed becomes evident even for systems involving four particles. Consequently, further efforts must be directed toward developing more potent quantum computers. As of now, conventional analytical solvers such as eigendecomposition still outperform VQE on classical computers, and as such, remain a preferable choice of algorithm.
+
+\subsection{References}
 
 \end{document}
 

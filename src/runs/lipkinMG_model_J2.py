@@ -3,31 +3,18 @@ from src.ops import *
 import numpy as np
 from tqdm import tqdm
 import matplotlib.pyplot as plt
-
+import time
 
 v_values_an = np.linspace(0, 2.0, 100)
-w_values_an = np.linspace(0, 1.0, 100)
 eigvals_an = np.zeros((len(v_values_an), 16))
-entropy = np.zeros((len(v_values_an), 16))
 
+start_time = time.time()
 for i, v in enumerate(tqdm(v_values_an)):
     H = lipkin_H_J2_Pauli(v)
-    HF = lipkin_H_J2_Pauli(v, w_values_an[i], True)
-
     eig_vals, eig_vecs = np.linalg.eig(H)
     eig_perm = eig_vals.argsort()
     eigvals_an[i], eig_vecs = eig_vals[eig_perm], eig_vecs[:, eig_perm]
-
-print(eigvals_an[49][0])
-
-
-# fig, axs = plt.subplots(1, 1, figsize=(8, 8))
-# for i in range(len(eigvals_an[0])):
-#     axs.plot(v_values_an, eigvals_an[:, i], label=f"$E_{i}$", linestyle="dashed")
-# axs.set_xlabel(r"$V/\epsilon$")
-# axs.set_ylabel(r"$E/\epsilon$")
-# axs.legend(loc="upper left")
-# plt.show()
+print(f"Time taken for the analytical method: {time.time() - start_time}")
 
 # In order to be able to perform the measurement in the Z basis, we will need to
 # rotate our measurement basis into the ZIII basis. In order to do so, we are going
@@ -38,24 +25,20 @@ print(eigvals_an[49][0])
 # J=2, indicating four fermions.
 
 
-def get_gradient(angles, v, number_shots, unitaries):
-    grad = np.zeros(len(angles))
-    for index, angle in enumerate(angles):
-        tmp = angles.copy()
-        tmp[index] += np.pi / 2
-        energy_plus = measure_energy_mul(tmp, v, number_shots)
-        tmp[index] -= np.pi
-        energy_minus = measure_energy_mul(tmp, v, number_shots)
-        grad[index] = (energy_plus - energy_minus) / 2
-    return grad
-
-
+start_time = time.time()
 unitaries = prep_circuit_lipkin_J2()
-
 v_vals = np.linspace(0.0, 2.0, 8)
-
 ener = VQE_scipy(
     measure_energy_mul, v_vals, 5 * 8, 1000, unitaries, 0.0, 2 * np.pi, "BFGS"
 )
+print(f"Time taken for the VQE method: {time.time() - start_time}")
 
-print(ener)
+fig, axs = plt.subplots(1, 1, figsize=(8, 8))
+for i in range(len(eigvals_an[0])):
+    axs.plot(v_values_an, eigvals_an[:, i], label=f"$E_{i}$")
+axs.scatter(v_vals, ener, label="VQE Energy Scipy", marker="o")
+axs.set_xlabel(r"$V/\epsilon$")
+axs.set_ylabel(r"$E/\epsilon$")
+axs.set_title("Energy levels as a function of interaction parameter V$")
+axs.legend(loc="upper left")
+plt.show()
