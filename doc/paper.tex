@@ -319,7 +319,7 @@ H = H_0 + \lambda H_I,
 \]
 with $\lambda \in [0, 1]$, where the limits $\lambda = 0$ and $\lambda = 1$ represent the non-interacting (or unperturbed) and fully interacting system, respectively. The model is an eigenvalue problem with only two available states.
 
-Here we set the parameters $E_1 = 0$, $E_2 = 4$, $V_{11} = -V_{22} = 3$, and $V_{12} = V_{21} = 0.2$. The non-interacting solutions represent our computational basis. Pertinent to our choice of parameters, at $\lambda \geq \frac{2}{3}$, the lowest eigenstate is dominated by $|1\rangle$ while the upper is $|0\rangle$. At $\lambda = 1$, the $|0\rangle$ mixing of the lowest eigenvalue is 1\%, while for $\lambda \leq \frac{2}{3}$, we have a $|0\rangle$ component of more than 90\%. The character of the eigenvectors has therefore been interchanged when passing $\lambda = \frac{2}{3}$. The value of the parameter $V_{12}$ represents the strength of the coupling between the two states. ([Fys5419, project 1])
+Here we set the parameters $E_1 = 0$, $E_2 = 4$, $V_{11} = -V_{22} = 3$, and $V_{12} = V_{21} = 0.2$. The non-interacting solutions represent our computational basis. Pertinent to our choice of parameters, at $\lambda \geq \frac{2}{3}$, the lowest eigenstate is dominated by $|1\rangle$ while the upper is $|0\rangle$. At $\lambda = 1$, the $|0\rangle$ mixing of the lowest eigenvalue is 1\%, while for $\lambda \leq \frac{2}{3}$, we have a $|0\rangle$ component of more than 90\%. The character of the eigenvectors has therefore been interchanged when passing $\lambda = \frac{2}{3}$. The value of the parameter $V_{12}$ represents the strength of the coupling between the two states. ([Morten, project 1])
 
 \subsubsection{Two-body Hamiltonian}
 We also introduce a simple system composed of two qubits, where the system can be thought of as composed of two subsystems A and B.
@@ -649,7 +649,23 @@ We initiated this project by examining the behavior of quantum gates on individu
 
 Based on our attained results, we can assert that VQE approximates the lowest eigenvalue of the presented Hamiltonian matrices with good precision. However, it is susceptible to the curse of dimensionality stemming from the nature of qubits and the systems they compose. While the algorithm operates swiftly for systems encompassing one or two qubits, a significant reduction in computational speed becomes evident even for systems involving four particles. Consequently, further efforts must be directed toward developing more potent quantum computers. As of now, conventional analytical solvers such as eigendecomposition still outperform VQE on classical computers, and as such, remain a preferable choice of algorithm.
 
-\subsection{References}
+\section{References}
+
+[Hundt, 2022] Hundt Robert (2022). Qunatum Computing for Programmers. Cambridge University Press.
+
+[Nielsen, 2021] Nielsen Michael (2021). Qunatum Computation adm Quantum Informantion. Cambridge University Press.
+
+[Physical review C, 2022] Manqoba Q. Hlatshwayo (2022). Simulating excited states og the Lipkin model on a Quantum Computer.
+
+[Basdevant, 2023] Basdevant Jean-Louis (2023). Lectures on Quantum Mechanics With Problems, Exercises and Solutions. Springer Nature Switzerland.
+
+[Scherer, 2019] Scherer Wolfgang (2019). Mathematics of Quantum Computing an Introduction. Springer Nature Switzerland.
+
+[Morten Hjorth-Jensen, 2023] M. Hjorth-Jensen, ”Week 11: VQE and project discussion,” URL: https://github.com/CompPhysics/QuantumComputingMachineLearning/tree/gh-pages/doc/pub/week11 April 2023.
+
+[Morten Hjorth-Jensen, 2023] M. Hjorth-Jensen, ”Week 8: Solving quantum mechanical problems,” URL: https://github.com/CompPhysics/QuantumComputingMachineLearning/tree/gh-pages/doc/pub/week8, March 2023.
+
+[Morten Hjorth-Jensen, 2023] M. Hjorth-Jensen, ”Project 1: Quantum Computing and many-body problems,” URL: https://github.com/CompPhysics/QuantumComputingMachineLearning/blob/gh-pages/doc/Projects/2023/Project1/pdf/Project1.pdf March 2023.
 
 \end{document}
 
