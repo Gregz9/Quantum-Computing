@@ -6,6 +6,7 @@ from src.ops import *
 from scipy.optimize import minimize
 import matplotlib.pyplot as plt
 from tqdm import tqdm
+import time
 
 # Solving the Hamiltonian analytically
 
@@ -22,6 +23,19 @@ def plot_energies(analytical, numerical=None, lmd=np.zeros(20)):
     plt.show()
 
 
+def plot_against_numerical(energies, numerical, lmbds):
+    figs, axs = plt.subplots(1, 1, figsize=(12, 12))
+    for i in range(2):
+        axs.plot(lmbds, numerical[:, i], label=f"$E_{i+1}$")
+    axs.scatter(lmbds, energies, label=f"$E_0$")
+    axs.set_xlabel(r"$\lambda$")
+    axs.set_label("Energy")
+    axs.grid()
+    axs.set_title("Energy levels as a function of interaction strength $\lambda$")
+    axs.legend()
+    plt.show()
+
+
 def plot_vqe_energies(energies, analytical, lmbds):
     figs, axs = plt.subplots(1, 1, figsize=(12, 12))
     for i in range(2):
@@ -30,10 +44,12 @@ def plot_vqe_energies(energies, analytical, lmbds):
     axs.set_xlabel(r"$\lambda$")
     axs.set_label("Energy")
     axs.grid()
+    axs.set_title("Energy levels as a function of interaction strength $\lambda$")
     axs.legend()
     plt.show()
 
 
+start_time = time.time()
 # lam = np.arange(0, 1, 0.05)
 lam = np.linspace(0.0, 1.0, 40)
 system_ener_an = np.zeros((len(lam), 2))
@@ -45,8 +61,10 @@ for i, l in enumerate(lam):
     perm = eig_vals.argsort()
     system_ener_an[i] = eig_vals[perm]
 
+print(f"Time taken for the analytical method: {time.time() - start_time}")
 # Solving the Hamiltonian numerically
 
+start_time = time.time()
 system_ener_num = np.zeros((len(lam), 2))
 for i, l in enumerate(lam):
     Ham, _ = hamiltonian_1qubit(
@@ -57,7 +75,10 @@ for i, l in enumerate(lam):
     perm = eig_vals.argsort()
     system_ener_num[i] = eig_vals[perm]
 
+print(f"Time taken for the numerical method: {time.time() - start_time}")
 
+
+start_time = time.time()
 num_shots = 1000
 learning_rate = 0.3
 momentum = 0.2
@@ -77,5 +98,7 @@ for i, lmbd in enumerate(tqdm(lmbds)):
         )
     min_energy[i] = measure_energy_1q(angles, lmbd, num_shots)
 
+print(f"Time taken for the VQE: {time.time() - start_time}")
 
 plot_vqe_energies(min_energy, system_ener_an, lmbds)
+plot_against_numerical(min_energy, system_ener_num, lmbds)
