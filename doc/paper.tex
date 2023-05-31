@@ -600,7 +600,7 @@ $\frac{1}{\sqrt{2}}(|00\rangle + |11\rangle)$ & CNOT(0,1)adj$\otimes$Hadj & $|00
 \end{center}
 
 \subsection{Solving one and two qubit Hamiltonians} 
-Prior to simulating the Lipkin model using our VQE alogorithm, we constructed two simple Hamiltonians each representing a system comprised of one and two qubits respectively. We started by setting up the one qubit system where the Hamiltonian matrix is given by the simple eqution constituting a non-interacting part $H_0$ and an interacting part $H_1$,  
+Prior to simulating the Lipkin model using our VQE alogorithm, we constructed two simple Hamiltonians each representing a system comprised of one and two qubits respectively. We started with the one-body Hamiltonian, where we rewrote the Hamiltonian in terms of the Pauli operators and solved for the lowest eigenvalue using eigendecomposition and the power method before we set up our ansatz and use the VQE to find the ground state energy. 
 
 
 
