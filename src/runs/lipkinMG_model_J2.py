@@ -36,7 +36,7 @@ print(f"Time taken for the VQE method: {time.time() - start_time}")
 fig, axs = plt.subplots(1, 1, figsize=(8, 8))
 for i in range(len(eigvals_an[0])):
     axs.plot(v_values_an, eigvals_an[:, i], label=f"$E_{i}$")
-axs.scatter(v_vals, ener, label="VQE Energy Scipy", marker="o")
+# axs.scatter(v_vals, ener, label="VQE Energy Scipy", marker="o")
 axs.set_xlabel(r"$V/\epsilon$")
 axs.set_ylabel(r"$E/\epsilon$")
 axs.set_title("Energy levels as a function of interaction parameter V$")

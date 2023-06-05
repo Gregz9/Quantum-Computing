@@ -94,21 +94,27 @@ def lipkin_H_J2_Pauli(v, w=0, full=False):
     IYIY = np.kron(I, np.kron(Y, np.kron(I, Y)))
     IIYY = np.kron(I, np.kron(I, np.kron(Y, Y)))
 
-    Jm = (X - 1j * Y) / np.sqrt(2)
-    Jp = (X + 1j * Y) / np.sqrt(2)
+    N1 = np.kron((1 / 2)*(I - Z), np.kron(I, np.kron(I, I)))
+    N2 = np.kron(I, np.kron((1 / 2) * (I - Z), np.kron(I, I)))
+    N3 = np.kron(I, np.kron(I, np.kron((1 / 2) * (I - Z), I)))
+    N4 = np.kron(I, np.kron(I, np.kron(I, (1 / 2) * (I - Z))))
+    N = N1 + N2 + N3 + N4
 
-    JpJmII = np.kron(Jp, np.kron(Jm, np.kron(I, I)))
-    JmJpII = np.kron(Jm, np.kron(Jp, np.kron(I, I)))
-    JpIJmI = np.kron(Jp, np.kron(I, np.kron(Jm, I)))
-    JmIJpI = np.kron(Jm, np.kron(I, np.kron(Jp, I)))
-    JpIIJm = np.kron(Jp, np.kron(I, np.kron(I, Jm)))
-    JmIIJp = np.kron(Jm, np.kron(I, np.kron(I, Jp)))
-    IJpJmI = np.kron(I, np.kron(Jp, np.kron(Jm, I)))
-    IJmJpI = np.kron(I, np.kron(Jm, np.kron(Jp, I)))
-    IJpIJm = np.kron(I, np.kron(Jp, np.kron(I, Jm)))
-    IJmIJp = np.kron(I, np.kron(Jm, np.kron(I, Jp)))
-    IIJpJm = np.kron(I, np.kron(I, np.kron(Jp, Jm)))
-    IIJmJp = np.kron(I, np.kron(I, np.kron(Jm, Jp)))
+    # Jm = (X - 1j * Y) / np.sqrt(2)
+    # Jp = (X + 1j * Y) / np.sqrt(2)
+
+    # JpJmII = np.kron(Jp, np.kron(Jm, np.kron(I, I)))
+    # JmJpII = np.kron(Jm, np.kron(Jp, np.kron(I, I)))
+    # JpIJmI = np.kron(Jp, np.kron(I, np.kron(Jm, I)))
+    # JmIJpI = np.kron(Jm, np.kron(I, np.kron(Jp, I)))
+    # JpIIJm = np.kron(Jp, np.kron(I, np.kron(I, Jm)))
+    # JmIIJp = np.kron(Jm, np.kron(I, np.kron(I, Jp)))
+    # IJpJmI = np.kron(I, np.kron(Jp, np.kron(Jm, I)))
+    # IJmJpI = np.kron(I, np.kron(Jm, np.kron(Jp, I)))
+    # IJpIJm = np.kron(I, np.kron(Jp, np.kron(I, Jm)))
+    # IJmIJp = np.kron(I, np.kron(Jm, np.kron(I, Jp)))
+    # IIJpJm = np.kron(I, np.kron(I, np.kron(Jp, Jm)))
+    # IIJmJp = np.kron(I, np.kron(I, np.kron(Jm, Jp)))
 
     if not full:
         H = (
@@ -117,16 +123,13 @@ def lipkin_H_J2_Pauli(v, w=0, full=False):
             + (v / 2) * (YYII + YIYI + YIIY + IYYI + IYIY + IIYY)
         )
     elif full:
-        pwr = 4
-        N1 = I - Z
-        N4 = np.kron(N1, np.kron(N1, np.kron(N1, N1))) * (1 / 2) ** (pwr / 2)
         H = (
             (1 / 2) * (ZIII + IZII + IIZI + IIIZ)
             - (v / 2) * (XXII + XIXI + XIIX + IXXI + IXIX + IIXX)
             + (v / 2) * (YYII + YIYI + YIIY + IYYI + IYIY + IIYY)
             + (w / 2)
             * (
-                -N4
+                -N
                 + XXII
                 + XIXI
                 + XIIX
@@ -179,7 +182,6 @@ def normalize(x):
     fac = abs(x).max()
     x_n = x / x.max()
     return fac, x_n
-
 
 
 def power_iteration(a, num_iterations, seed=11337) -> (np.ndarray, np.ndarray):
@@ -665,5 +667,3 @@ def get_energy(H, theta, phi, collapse_to=0):
     basis[collapse_to] = 1
     basis = RotationY(phi) @ RotationX(theta) @ basis
     return basis.conj().T @ H @ basis
-
-
