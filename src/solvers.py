@@ -485,7 +485,7 @@ def measure_energy_2q(
     return coeffs[0] + np.sum(consts * exp_vals) / shots
 
 
-def measure_energy_mul(angles, v, num_shots, w=0.0):
+def measure_energy_mul(angles, v, num_shots):
     gates = prep_circuit_lipkin_J2()
     state4 = ansatz_4qubit(angles)
     measurements = np.zeros((len(gates), num_shots))
@@ -498,6 +498,7 @@ def measure_energy_mul(angles, v, num_shots, w=0.0):
     consts = np.concatenate(
         (0.5 * np.ones(4), -0.5 * v * np.ones(6), 0.5 * v * np.ones(6))
     )
+     
     for i in range(len(exps)):
         counts = [len(np.where(measurements[i] == j)[0]) for j in range(16)]
         for out, count in enumerate(counts):

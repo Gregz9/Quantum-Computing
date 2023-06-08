@@ -10,7 +10,7 @@ eigvals_an = np.zeros((len(v_values_an), 16))
 
 start_time = time.time()
 for i, v in enumerate(tqdm(v_values_an)):
-    H = lipkin_H_J2_Pauli(v)
+    H = lipkin_H_J2_Pauli(v, 0, full=True)
     eig_vals, eig_vecs = np.linalg.eig(H)
     eig_perm = eig_vals.argsort()
     eigvals_an[i], eig_vecs = eig_vals[eig_perm], eig_vecs[:, eig_perm]
@@ -39,6 +39,6 @@ for i in range(len(eigvals_an[0])):
 # axs.scatter(v_vals, ener, label="VQE Energy Scipy", marker="o")
 axs.set_xlabel(r"$V/\epsilon$")
 axs.set_ylabel(r"$E/\epsilon$")
-axs.set_title("Energy levels as a function of interaction parameter V$")
+axs.set_title("Energy levels as a function of interaction parameter W")
 axs.legend(loc="upper left")
 plt.show()
