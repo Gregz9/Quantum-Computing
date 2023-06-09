@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Arch Linux) (preloaded format=pdflatex 2023.5.26)  31 MAY 2023 23:11
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Arch Linux) (preloaded format=pdflatex 2023.5.26)  9 JUN 2023 16:36
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -812,7 +812,7 @@ Here is how much of TeX's memory you used:
  38195 multiletter control sequences out of 15000+600000
  545390 words of font info for 94 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 84i,14n,80p,1165b,533s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 84i,14n,80p,1041b,533s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmex1
 0.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/sh
 are/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texmf-dist/
@@ -823,7 +823,7 @@ usr/share/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb></usr/share/texmf-dist
 /fonts/type1/urw/symbol/usyr.pfb></usr/share/texmf-dist/fonts/type1/urw/times/u
 tmb8a.pfb></usr/share/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/t
 exmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on paper.pdf (17 pages, 348860 bytes).
+Output written on paper.pdf (17 pages, 348669 bytes).
 PDF statistics:
  137 PDF objects out of 1000 (max. 8388607)
  81 compressed objects within 1 object stream
