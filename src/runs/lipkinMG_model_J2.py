@@ -10,7 +10,7 @@ eigvals_an = np.zeros((len(v_values_an), 16))
 
 start_time = time.time()
 for i, v in enumerate(tqdm(v_values_an)):
-    H = lipkin_H_J2_Pauli(v)
+    H = lipkin_H_J2_Pauli(v, v, full=True)
     eig_vals, eig_vecs = np.linalg.eig(H)
     eig_perm = eig_vals.argsort()
     eigvals_an[i], eig_vecs = eig_vals[eig_perm], eig_vecs[:, eig_perm]
@@ -28,7 +28,7 @@ print(f"Time taken for the analytical method: {time.time() - start_time}")
 start_time = time.time()
 unitaries = prep_circuit_lipkin_J2()
 v_vals = np.linspace(0.0, 2.0, 8)
-# w_vals = np.linspace(0.0, 2.0, 8)
+w_vals = np.linspace(0.0, 2.0, 8)
 ener = VQE_scipy(
     measure_energy_mul,
     v_vals,

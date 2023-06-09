@@ -7,6 +7,17 @@ from scipy.optimize import minimize
 from src.ops import *
 from tqdm import tqdm
 
+
+"""
+This file contains all the algorithms used for approximating/solving the 
+eigenvalue problems associated with each of the scripts found in the "runs"
+directory, starting with the extremely simple one-body Hamiltonian matrix, 
+and ending at the Lipkin model with spin J=2. It also contains the methods
+for the computation of the von neumann entropy for the two-body hamiltonian 
+(not Lipkin model with J=1). The code here contains little comments, however 
+the names should indicate which problem the methods correspond to.
+"""
+
 _PAULI_X = PauliX()
 _PAULI_Y = PauliY()
 _PAULI_Z = PauliZ()
@@ -485,6 +496,8 @@ def measure_energy_2q(
 
 
 def measure_energy_mul(angles, v, num_shots, w=None, full=False):
+
+    """Method used for measurements of expectation values """
     gates = prep_circuit_lipkin_J2()
     state4 = ansatz_4qubit(angles)
     measurements = np.zeros((len(gates), num_shots))
@@ -524,7 +537,11 @@ def measure_energy_mul(angles, v, num_shots, w=None, full=False):
         N3 = np.kron(I, np.kron(I, np.kron((1 / 2) * (I - Z), I)))
         N4 = np.kron(I, np.kron(I, np.kron(I, (1 / 2) * (I - Z))))
         N = N1 + N2 + N3 + N4
-        return np.sum(np.hstack((consts[:4] * exps[:4], consts[4:16] * exps[4:] + consts[16:] * exps[4:]))) / num_shots - 0.5*w*N[15,15]
+
+        # The following computation is used for the approximation of the ground state of a Hamiltonian 
+        # with W > 0. We should have computed the expectation value of the number operator, however we know 
+        # that in this case it should be 4, thus we directly include it in the computations 
+        return np.sum(np.hstack((consts[:4] * exps[:4], consts[4:16] * exps[4:] + consts[16:] * exps[4:]))) / num_shots -w*0.5*N[15,15]
     else:
         return np.sum(consts * exps) / num_shots
 
@@ -545,6 +562,11 @@ def chose_measurement(length, J=0):
 
 # Generalized version of VQE
 def VQE(eta, epochs, num_shots, init_angles, lmbd, J=0):
+    """ 
+    One of the two main version of the VQE alogrithm used for approximating the 
+    ground state energy of the hamiltonians presented in this project.
+    """
+    
     measure_energy = chose_measurement(len(init_angles), J)
     angles = init_angles.copy()
     energy = measure_energy(angles, lmbd, num_shots)
@@ -575,6 +597,13 @@ def VQE_scipy(
     w_params=None,
     full=False,
 ):
+    """ VQE algorithm enchanced with the minimize method from the scipy library. 
+    compared to the other VQE method which coputes the gradient from scratch, this 
+    method utilizes "minimize" for this purpose. Compared to the other generalized 
+    VQE algorithm, it also takes in a measure method as a parameter. For our puroposes
+    this method is called "measure_energy_mul", which is used for the measurements 
+    associated with the lipkin model"""
+
     min_energy = np.zeros(len(v_params))
     for i, v in enumerate(tqdm(v_params)):
         init_angles = np.random.uniform(low=low, high=high, size=angles_dims)
@@ -641,6 +670,7 @@ def VQE_Adam(eta, beta1, beta2, epochs, num_shots, init_angles, lmbd, J=0):
 
 
 def calc_grad(angles, ind, lmbd, num_shots, J=0):
+    # Used for computation of the gradient in the "VQE" method presented above
     measure_energy = chose_measurement(angles.shape[0], J)
     angles[ind] += np.pi / 2
     ener_pl = measure_energy(angles, lmbd, num_shots)
@@ -651,6 +681,7 @@ def calc_grad(angles, ind, lmbd, num_shots, J=0):
 
 
 def get_gradient(angles, v, number_shots, w=None, full=False):
+    # Used for minimazing the expectation value in the function "VQE_scipy"
     unitaries = prep_circuit_lipkin_J2()
     grad = np.zeros(len(angles))
     for index, angle in enumerate(angles):
