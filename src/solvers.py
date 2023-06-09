@@ -496,8 +496,7 @@ def measure_energy_2q(
 
 
 def measure_energy_mul(angles, v, num_shots, w=None, full=False):
-
-    """Method used for measurements of expectation values used for computations associated 
+    """Method used for measurements of expectation values used for computations associated
     with the lipkin model only
     """
     gates = prep_circuit_lipkin_J2()
@@ -522,8 +521,8 @@ def measure_energy_mul(angles, v, num_shots, w=None, full=False):
     else:
         consts = np.concatenate(
             (0.5 * np.ones(4), -0.5 * v * np.ones(6), 0.5 * v * np.ones(6))
-    )
-    
+        )
+
     for i in range(len(exps)):
         counts = [len(np.where(measurements[i] == j)[0]) for j in range(16)]
         for out, count in enumerate(counts):
@@ -532,11 +531,31 @@ def measure_energy_mul(angles, v, num_shots, w=None, full=False):
             elif out > 7:
                 exps[i] -= count
     if full:
-        # The following computation is used for the approximation of the ground state of a Hamiltonian 
-        # with W > 0.
-        return np.sum(np.hstack((consts[:4] * exps[:4], consts[4:16] * exps[4:] + consts[16:] * exps[4:]))) / num_shots -w*0.5*4*np.abs(state4)**2 # expectation value of the number operator 
+        # The following computation is used for the approximation of the ground state of a Hamiltonian
+        # with W > 0. To achieve a good approximation from only one measurement, we need to seed.
+        np.random.seed(7)
+        N1 = np.kron((1 / 2) * (I - Z), np.kron(I, np.kron(I, I)))
+        N2 = np.kron(I, np.kron((1 / 2) * (I - Z), np.kron(I, I)))
+        N3 = np.kron(I, np.kron(I, np.kron((1 / 2) * (I - Z), I)))
+        N4 = np.kron(I, np.kron(I, np.kron(I, (1 / 2) * (I - Z))))
+        N = N1 + N2 + N3 + N4
+
+        N_exp = np.sum(np.abs(N @ state4) ** 2)
+        return (
+            np.sum(
+                np.hstack(
+                    (
+                        consts[:4] * exps[:4],
+                        consts[4:16] * exps[4:] + consts[16:] * exps[4:],
+                    )
+                )
+            )
+            / num_shots
+            - w * 0.5 * N_exp
+        )  # expectation value of the number operator
     else:
         return np.sum(consts * exps) / num_shots
+
 
 def chose_measurement(length, J=0):
     if J == 2:
@@ -555,11 +574,11 @@ def chose_measurement(length, J=0):
 
 # Generalized version of VQE
 def VQE(eta, epochs, num_shots, init_angles, lmbd, J=0):
-    """ 
-    One of the two main version of the VQE alogrithm used for approximating the 
+    """
+    One of the two main version of the VQE alogrithm used for approximating the
     ground state energy of the hamiltonians presented in this project.
     """
-    
+
     measure_energy = chose_measurement(len(init_angles), J)
     angles = init_angles.copy()
     energy = measure_energy(angles, lmbd, num_shots)
@@ -590,11 +609,11 @@ def VQE_scipy(
     w_params=None,
     full=False,
 ):
-    """ VQE algorithm enchanced with the minimize method from the scipy library. 
-    compared to the other VQE method which coputes the gradient from scratch, this 
-    method utilizes "minimize" for this purpose. Compared to the other generalized 
+    """VQE algorithm enchanced with the minimize method from the scipy library.
+    compared to the other VQE method which coputes the gradient from scratch, this
+    method utilizes "minimize" for this purpose. Compared to the other generalized
     VQE algorithm, it also takes in a measure method as a parameter. For our puroposes
-    this method is called "measure_energy_mul", which is used for the measurements 
+    this method is called "measure_energy_mul", which is used for the measurements
     associated with the lipkin model"""
 
     min_energy = np.zeros(len(v_params))
@@ -604,7 +623,9 @@ def VQE_scipy(
             fun=measure_method,
             jac=get_gradient,
             x0=init_angles,
-            args=(v_params[i], shots) if not full else (v_params[i], shots, w_params[i], full),
+            args=(v_params[i], shots)
+            if not full
+            else (v_params[i], shots, w_params[i], full),
             method=method,
             options={"maxiter": 10000},
             tol=1e-11,

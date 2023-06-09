@@ -22,13 +22,15 @@ N4 = np.kron(I, np.kron(I, np.kron(I, (1 / 2) * (I - Z))))
 N = N1 + N2 + N3 + N4
 
 print(N)
-
+np.random.seed(7)
 num_shots = 1000
 expectation = 0.0
 # state4 = np.random.uniform(0, 1, 16)
+init_angles = np.random.uniform(0.0, 2 * np.pi, size=1 * 8)
+state4 = ansatz_4qubit(init_angles)
+state4 /= np.linalg.norm(state4)
+print(np.sum(np.abs(N @ state4) ** 2))
 for i in range(num_shots):
-    init_angles = np.random.uniform(0.0, 2 * np.pi, size=1 * 8)
-    state4 = ansatz_4qubit(init_angles)
     Nstate4 = N @ state4
     expectation += Nstate4.conj().T @ Nstate4
 
