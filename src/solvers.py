@@ -94,7 +94,7 @@ def lipkin_H_J2_Pauli(v, w=0, full=False):
     IYIY = np.kron(I, np.kron(Y, np.kron(I, Y)))
     IIYY = np.kron(I, np.kron(I, np.kron(Y, Y)))
 
-    N1 = np.kron((1 / 2)*(I - Z), np.kron(I, np.kron(I, I)))
+    N1 = np.kron((1 / 2) * (I - Z), np.kron(I, np.kron(I, I)))
     N2 = np.kron(I, np.kron((1 / 2) * (I - Z), np.kron(I, I)))
     N3 = np.kron(I, np.kron(I, np.kron((1 / 2) * (I - Z), I)))
     N4 = np.kron(I, np.kron(I, np.kron(I, (1 / 2) * (I - Z))))
@@ -210,7 +210,6 @@ def QR_solver(H, delta=1e-6, iters=100):
 
     for iteration in range(iters):
         Q, R = np.linalg.qr(H)
-        # A = np.dot(R, Q)
         H = Q.T @ H @ Q
 
         # Check convergence
@@ -485,7 +484,7 @@ def measure_energy_2q(
     return coeffs[0] + np.sum(consts * exp_vals) / shots
 
 
-def measure_energy_mul(angles, v, num_shots):
+def measure_energy_mul(angles, v, num_shots, w=None, full=False):
     gates = prep_circuit_lipkin_J2()
     state4 = ansatz_4qubit(angles)
     measurements = np.zeros((len(gates), num_shots))
@@ -495,10 +494,21 @@ def measure_energy_mul(angles, v, num_shots):
         measurements[i] = measurement
 
     exps = np.zeros(len(measurements))
-    consts = np.concatenate(
-        (0.5 * np.ones(4), -0.5 * v * np.ones(6), 0.5 * v * np.ones(6))
+
+    if full:
+        consts = np.concatenate(
+            (
+                0.5 * np.ones(4),
+                -0.5 * v * np.ones(6),
+                0.5 * v * np.ones(6),
+                0.5 * w * np.ones(12),
+            )
+        )
+    else:
+        consts = np.concatenate(
+            (0.5 * np.ones(4), -0.5 * v * np.ones(6), 0.5 * v * np.ones(6))
     )
-     
+    
     for i in range(len(exps)):
         counts = [len(np.where(measurements[i] == j)[0]) for j in range(16)]
         for out, count in enumerate(counts):
@@ -506,8 +516,17 @@ def measure_energy_mul(angles, v, num_shots):
                 exps[i] += count
             elif out > 7:
                 exps[i] -= count
-    return np.sum(consts * exps) / num_shots
-
+    if full:
+        I = np.eye(2)
+        Z = PauliZ()
+        N1 = np.kron((1 / 2) * (I - Z), np.kron(I, np.kron(I, I)))
+        N2 = np.kron(I, np.kron((1 / 2) * (I - Z), np.kron(I, I)))
+        N3 = np.kron(I, np.kron(I, np.kron((1 / 2) * (I - Z), I)))
+        N4 = np.kron(I, np.kron(I, np.kron(I, (1 / 2) * (I - Z))))
+        N = N1 + N2 + N3 + N4
+        return np.sum(np.hstack((consts[:4] * exps[:4], consts[4:16] * exps[4:] + consts[16:] * exps[4:]))) / num_shots - 0.5*w*N[15,15]
+    else:
+        return np.sum(consts * exps) / num_shots
 
 def chose_measurement(length, J=0):
     if J == 2:
@@ -547,22 +566,23 @@ def VQE(eta, epochs, num_shots, init_angles, lmbd, J=0):
 
 def VQE_scipy(
     measure_method,
-    inter_params,
+    v_params,
     angles_dims,
     shots,
-    circuits,
     low,
     high,
     method="Powell",
+    w_params=None,
+    full=False,
 ):
-    min_energy = np.zeros(len(inter_params))
-    for i, v in enumerate(tqdm(inter_params)):
+    min_energy = np.zeros(len(v_params))
+    for i, v in enumerate(tqdm(v_params)):
         init_angles = np.random.uniform(low=low, high=high, size=angles_dims)
         res = minimize(
             fun=measure_method,
             jac=get_gradient,
             x0=init_angles,
-            args=(inter_params[i], shots, circuits),
+            args=(v_params[i], shots) if not full else (v_params[i], shots, w_params[i], full),
             method=method,
             options={"maxiter": 10000},
             tol=1e-11,
@@ -630,14 +650,15 @@ def calc_grad(angles, ind, lmbd, num_shots, J=0):
     return grad
 
 
-def get_gradient(angles, v, number_shots, unitaries):
+def get_gradient(angles, v, number_shots, w=None, full=False):
+    unitaries = prep_circuit_lipkin_J2()
     grad = np.zeros(len(angles))
     for index, angle in enumerate(angles):
         tmp = angles.copy()
         tmp[index] += np.pi / 2
-        energy_plus = measure_energy_mul(tmp, v, number_shots)
+        energy_plus = measure_energy_mul(tmp, v, number_shots, w, full)
         tmp[index] -= np.pi
-        energy_minus = measure_energy_mul(tmp, v, number_shots)
+        energy_minus = measure_energy_mul(tmp, v, number_shots, w, full)
         grad[index] = (energy_plus - energy_minus) / 2
     return grad
 
