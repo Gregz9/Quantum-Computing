@@ -4,6 +4,11 @@ import math
 from src.solvers import *
 from src.ops import *
 
+"""
+This script presents the action of single qubit gates on qubits prepared in either state 
+|0> or state |1>. 
+"""
+
 if __name__ == "__main__":
     # Preparing two seperate qubits each in one of the basis state |0> and |1>
     psi0 = state(alpha=1.0)

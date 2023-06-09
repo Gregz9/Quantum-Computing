@@ -5,6 +5,9 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 import time
 
+# solving for the ground state energy of the lipkin Hamiltonian of the system with total spin J=2,
+# meaning that the system conatains four fermions which are spread across two energy levels.
+
 v_values_an = np.linspace(0, 2.0, 100)
 eigvals_an = np.zeros((len(v_values_an), 16))
 

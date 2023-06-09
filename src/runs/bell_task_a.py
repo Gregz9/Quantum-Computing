@@ -5,6 +5,11 @@ from src.solvers import *
 from src.ops import *
 from src.bell_states import *
 
+"""
+This file presents the computations which are performed on bell states as is 
+asked in part A of the project
+"""
+
 if __name__ == "__main__":
     # Preparing bell states
     b00 = bell_state(0, 0)

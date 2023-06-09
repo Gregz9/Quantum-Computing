@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import time
 from scipy.optimize import minimize
 
-# The case of spin J=1, solving for eigenvalues using analytical and numerical methods
+# The case of spin J=1, solving for eigenvalues using analytical and numerical methos
 
 
 def plot_energy(energy_an, energy_vqe, energy_vqe_scipy, v_values_ana, v_values_vqe):

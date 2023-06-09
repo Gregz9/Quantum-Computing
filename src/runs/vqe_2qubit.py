@@ -8,6 +8,12 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 import time
 
+
+"""
+THis file contains both the analytical solution of the eigenvalue problem associated with the 
+two-body hamiltonian presented in part D and E of the project, as well as the VQE algorithm 
+using our own gradient computations for the minimization of the expectation value"""
+
 H = hamiltonian_2qubit(1.0, 2.0, 3.0, np.array([0.0, 2.5, 6.5, 7.0]))
 lmbds = np.linspace(0.0, 1.0, 50)
 eigvals_an = np.zeros((len(lmbds), H.shape[1]))

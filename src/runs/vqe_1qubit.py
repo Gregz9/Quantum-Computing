@@ -8,6 +8,11 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 import time
 
+"""
+THis file contains both the analytical solution of the eigenvalue problem associated with the 
+one-body hamiltonian presented in part B and C of the project, as well as the VQE algorithm 
+using our own gradient computations for the minimization of the expectation value"""
+
 # Solving the Hamiltonian analytically
 
 

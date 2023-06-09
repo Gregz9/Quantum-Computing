@@ -497,7 +497,9 @@ def measure_energy_2q(
 
 def measure_energy_mul(angles, v, num_shots, w=None, full=False):
 
-    """Method used for measurements of expectation values """
+    """Method used for measurements of expectation values used for computations associated 
+    with the lipkin model only
+    """
     gates = prep_circuit_lipkin_J2()
     state4 = ansatz_4qubit(angles)
     measurements = np.zeros((len(gates), num_shots))
@@ -530,18 +532,9 @@ def measure_energy_mul(angles, v, num_shots, w=None, full=False):
             elif out > 7:
                 exps[i] -= count
     if full:
-        I = np.eye(2)
-        Z = PauliZ()
-        N1 = np.kron((1 / 2) * (I - Z), np.kron(I, np.kron(I, I)))
-        N2 = np.kron(I, np.kron((1 / 2) * (I - Z), np.kron(I, I)))
-        N3 = np.kron(I, np.kron(I, np.kron((1 / 2) * (I - Z), I)))
-        N4 = np.kron(I, np.kron(I, np.kron(I, (1 / 2) * (I - Z))))
-        N = N1 + N2 + N3 + N4
-
         # The following computation is used for the approximation of the ground state of a Hamiltonian 
-        # with W > 0. We should have computed the expectation value of the number operator, however we know 
-        # that in this case it should be 4, thus we directly include it in the computations 
-        return np.sum(np.hstack((consts[:4] * exps[:4], consts[4:16] * exps[4:] + consts[16:] * exps[4:]))) / num_shots -w*0.5*N[15,15]
+        # with W > 0.
+        return np.sum(np.hstack((consts[:4] * exps[:4], consts[4:16] * exps[4:] + consts[16:] * exps[4:]))) / num_shots -w*0.5*4*np.abs(state4)**2 # expectation value of the number operator 
     else:
         return np.sum(consts * exps) / num_shots
 
