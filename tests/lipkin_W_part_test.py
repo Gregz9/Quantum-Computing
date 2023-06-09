@@ -25,12 +25,12 @@ print(N)
 
 num_shots = 1000
 expectation = 0.0
-state4 = np.random.uniform(0, 1, 16)
+# state4 = np.random.uniform(0, 1, 16)
 for i in range(num_shots):
     init_angles = np.random.uniform(0.0, 2 * np.pi, size=1 * 8)
     state4 = ansatz_4qubit(init_angles)
     Nstate4 = N @ state4
-    expectation += np.sum(np.abs(Nstate4) ** 2)
+    expectation += Nstate4.conj().T @ Nstate4
 
 print(expectation / num_shots)
 

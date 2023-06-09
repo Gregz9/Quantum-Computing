@@ -13,7 +13,7 @@ eigvals_an = np.zeros((len(v_values_an), 16))
 
 start_time = time.time()
 for i, v in enumerate(tqdm(v_values_an)):
-    H = lipkin_H_J2_Pauli(v, v, full=True)
+    H = lipkin_H_J2_Pauli(v)
     eig_vals, eig_vecs = np.linalg.eig(H)
     eig_perm = eig_vals.argsort()
     eigvals_an[i], eig_vecs = eig_vals[eig_perm], eig_vecs[:, eig_perm]
