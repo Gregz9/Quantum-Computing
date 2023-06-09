@@ -7,3 +7,6 @@ which correspond to part A. To run all the programs, including those two, you on
 
 ```
 python3 <file_name.py>
+```
+
+Following those two files, are the scripts called "vqe_1qubit.py" and "vqe_2qubits.py" which can be used to solve the hamiltonian of the one- and two-qubit systems presented in part b thorugh e og the project, respectively. Everything within these scripts is adjusted, thus the only requirement for repreducing the results presented in the report, is to run the files using the "python3" command presented above followeed by the filename with ".py" extension. Finally the two files corresponding to results achieved for the the lipkin model are named using a convention which indicates which case we're studyingthe names of the scripts are written with "J1" adn J2" to indicate simulation of the lipkin model for systems with total spin equal to J=1 and J=2. 
